@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>슬라이드 로그인</title>
+    <link rel="stylesheet" href="/_css/style.css">
+    <link rel="stylesheet" href="/_css/navi.css">
+</head>
+<body>
+
+    <!-- 네비게이션 바 포함 -->
+    <div th:replace="navi.html"></div>
+
+    <!-- 로그인 창 (기본적으로 숨겨져 있음) -->
+    <div id="loginContainer">
+        <div id="loginBox">
+            <button id="closeBtn">X</button>
+            <!-- 로그인 폼 내용 -->
+        </div>
+    </div>
+
+    <script src="/_js/script.js"></script>
+</body>
+</html>

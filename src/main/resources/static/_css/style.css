@@ -1,0 +1,36 @@
+/* 로그인 창 전체 컨테이너 */
+#loginContainer {
+    position: fixed;
+    top: 0;
+    right: -300px; /* 처음에는 화면 밖에 숨김 */
+    width: 300px;
+    height: 100vh;
+    background-color: white;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+    transition: right 0.3s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 로그인 창 내부 */
+#loginBox {
+    width: 80%;
+    text-align: center;
+}
+
+/* 닫기 버튼 */
+#closeBtn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    background: none;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+/* 로그인 창 활성화 시 오른쪽에서 나타나게 함 */
+#loginContainer.active {
+    right: 0;
+}

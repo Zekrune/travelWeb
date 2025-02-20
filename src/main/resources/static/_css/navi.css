@@ -1,0 +1,40 @@
+/* 네비게이션 바 스타일 */
+nav {
+    background-color: #007BFF; /* 네비게이션 배경색 */
+    padding: 10px;
+    display: flex; /* 수평 정렬 */
+    justify-content: space-between; /* 양쪽 끝으로 정렬 */
+    align-items: center; /* 수직 중앙 정렬 */
+}
+
+nav ul {
+    list-style-type: none; /* 기본 리스트 스타일 제거 */
+    padding: 0;
+    margin: 0;
+    display: flex; /* 가로로 나열 */
+    align-items: center; /* 수직 중앙 정렬 */
+}
+
+nav ul.first-navi {
+    flex-grow: 1; /* 첫 번째 네비게이션이 공간을 차지하도록 설정 */
+}
+
+nav ul.second-navi {
+    justify-content: flex-end; /* 두 번째 네비게이션을 오른쪽으로 정렬 */
+}
+
+nav li {
+    margin: 0 15px; /* 리스트 아이템 간격 */
+}
+
+nav a {
+    color: white; /* 링크 색상 */
+    text-decoration: none; /* 링크 밑줄 제거 */
+    font-weight: bold; /* 글자 두껍게 */
+    line-height: 1.5; /* 줄 높이 조정 */
+    padding: 5px 10px; /* 패딩 추가 */
+}
+
+nav a:hover {
+    text-decoration: underline; /* 마우스 오버 시 밑줄 추가 */
+}
