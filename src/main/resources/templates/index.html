@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ワクワク: 인덱스</title>
+    <style>
+        /* 기본 스타일 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            color: white;
+            background: url('/img/index_background.jpeg') no-repeat center center/cover;
+        }
+
+        /* 네비게이션 바 */
+        header {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 100px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: transparent;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            padding-right: 65px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: white;
+            font-weight: 500;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #ddd;
+        }
+
+        /* 컨텐츠 영역 */
+        .content {
+            text-align: center;
+            max-width: 600px;
+            padding: 30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .content h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+
+        .content p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        /* 버튼 스타일 (검은색으로 변경) */
+        .btn-start {
+            display: inline-block;
+            padding: 14px 30px;
+            background: black; /* 버튼을 검은색으로 변경 */
+            color: white;
+            font-size: 18px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s, transform 0.2s;
+            border: none;
+            font-weight: bold;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+            margin-top: 20px; /* 버튼 위 여백 추가 */
+        }
+
+        .btn-start:hover {
+            background: #333; /* 호버 시 어두운 회색 */
+            transform: scale(1.05);
+        }
+
+        /* 반응형 스타일 (모바일 지원) */
+        @media (max-width: 768px) {
+            header {
+                padding: 15px 30px;
+            }
+
+            .nav-links {
+                padding-right: 0;
+                gap: 15px;
+            }
+
+            .content {
+                width: 90%;
+            }
+
+            .content h1 {
+                font-size: 36px;
+            }
+
+            .btn-start {
+                font-size: 16px;
+                padding: 12px 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="navbar">
+        <div class="logo">ワクワク</div>
+        <nav class="nav-links">
+            <a href="#">홈</a>
+            <a href="#">관광 명소</a>
+            <a href="#">소개</a>
+        </nav>
+    </header>
+
+    <div class="content">
+        <h1>여행을 떠나볼까요?</h1>
+        <p>당신만의 특별한 여행을 계획해 보세요. 다양한 명소와 리뷰를 한눈에!</p>
+        <a href="/users/login" class="btn-start">시작하기</a>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>ワクワク:여행 메인 페이지</title>
+    <link rel="stylesheet" th:href="@{/css/mainPage.css}">
+    <link rel="stylesheet" th:href="@{/css/plan/planMain.css}">
+</head>
+
+<body>
+    <div th:replace="~{nav :: navbar}"></div>
+
+    <section class="hero">
+        <div class="hero-text">
+            <h1>
+                여행 계획 이렇게 쉽다고?<br>
+                AI 플래너와 함께 새로운 여행을 경험하세요!
+            </h1>
+            <p>
+                복잡한 여행 계획, <b>ワクワク</b>와 함께<br>
+                단 몇 분 만에 완벽한 일정으로!
+            </p>
+            <button id="openModalBtn" class="start-btn" onclick="window.location.href='/plans/create'">ワクワク로 시작하기</button>
+        </div>
+
+        <div class="hero-image">
+            <img th:src="@{/img/plan/map.png}" alt="여행 지도">
+        </div>
+    </section>
+
+    <!--
+    <div id="travelModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>여행지 검색</h2>
+                <span id="closeModalBtn" class="close">&times;</span>
+            </div>
+
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="지역명을 입력하세요..." autocomplete="off">
+                <button id="searchButton">🔍</button>
+            </div>
+
+            <div id="searchResults"></div>
+        </div>
+    </div>
+
+    <div id="locationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="location-title"></h2>
+                <span id="closeLocationModalBtn" class="close">&times;</span>
+            </div>
+            <img id="location-image" src="" alt="">
+            <button id="location-button" onclick="window.location.href='/plans/create'">여행 계획 생성</button>
+            <p id="location-description"></p>
+        </div>
+    </div> -->
+
+    <script th:src="@{/js/plan/planMain.js}"></script>
+    <script th:src="@{/js/script.js}"></script>
+</body>
+
+</html>

@@ -1,0 +1,5 @@
+INSERT INTO locations (country, city, description, image_url) VALUES
+('대한민국', '서울', '대한민국의 수도로, 다양한 문화와 맛집이 있는 도시입니다.', '/img/location/seoul.jpg'),
+('대한민국', '부산', '아름다운 해변과 활기찬 분위기의 도시입니다.', '/img/location/busan.jpg'),
+('일본', '도쿄', '일본의 수도로, 최신 기술과 전통이 공존하는 곳입니다.', '/img/location/tokyo.jpg'),
+('일본', '오사카', '맛있는 음식과 활기찬 거리가 유명한 도시입니다.', '/img/location/osaka.jpg');

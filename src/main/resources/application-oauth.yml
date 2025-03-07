@@ -1,0 +1,4 @@
+# 비밀 정보 제거
+# client:
+#   id: YOUR_CLIENT_ID
+#   secret: YOUR_CLIENT_SECRET 

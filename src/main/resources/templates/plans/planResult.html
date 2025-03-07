@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ワクワク:여행 일정 결과</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/planMain.css}">
+</head>
+<body>
+    <h1>생성된 여행 일정</h1>
+    <div>
+        <p><strong>Plan ID:</strong> <span th:text="${travelPlan.planId}"></span></p>
+        <p><strong>출발 장소:</strong> <span th:text="${travelPlan.departLocation}"></span></p>
+        <p><strong>출발 날짜:</strong> <span th:text="${travelPlan.startDate}"></span></p>
+        <p><strong>종료 날짜:</strong> <span th:text="${travelPlan.endDate}"></span></p>
+        <p><strong>교통 수단:</strong> <span th:text="${travelPlan.transportation}"></span></p>
+        <p><strong>도착 장소:</strong> <span th:text="${travelPlan.destination}"></span></p>
+        <p><strong>여행 목적:</strong> <span th:text="${travelPlan.purpose}"></span></p>
+        <p><strong>여행 예산:</strong> <span th:text="${travelPlan.budget}"></span></p>
+        <p><strong>여행 밀도:</strong> <span th:text="${travelPlan.density}"></span></p>
+        <p><strong>숙소 위치:</strong> <span th:text="${travelPlan.hotelLocation}"></span></p>
+        <p><strong>이동 방식:</strong> <span th:text="${travelPlan.travelMode}"></span></p>
+    </div>
+    <div>
+        <h2>Itinerary (JSON Format)</h2>
+        <pre th:text="${travelPlan.itinerary}"></pre>
+    </div>
+    <a th:href="@{/plan/create}">다시 생성하기</a>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ワクワク:로그인</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <link rel="stylesheet" href="/css/users/login.css">
+</head>
+
+<body>
+    <form class="login-container" action="/users/login" method="post" th:object="${user}">
+        <div class="logo">ワクワク</div>
+        <p class="subtitle">AI 여행 플래너로 간편하게</p>
+
+        <input type="text" th:field="*{username}" placeholder="아이디" required>
+        <input type="password" th:field="*{password}" placeholder="비밀번호" required>
+
+        <div class="checkbox-container">
+            <label><input type="checkbox"> ID 저장</label>
+        </div>
+
+        <!-- Google reCAPTCHA -->
+        <div class="captcha-container">
+            <div class="g-recaptcha" data-sitekey="your-site-key"></div>
+        </div>
+
+        <button type="submit" class="btn-login">로그인</button>
+
+        <div class="social-login">
+            <button class="social-login-button" type="button" onclick="location.href='/oauth2/authorization/google'">구글 로그인</button>
+        </div>
+
+        <a href="/users/register" class="register-link">회원가입</a>
+    </form>
+</body>
+
+</html>
