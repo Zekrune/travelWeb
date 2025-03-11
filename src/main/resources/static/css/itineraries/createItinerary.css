@@ -1,0 +1,702 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f7fa;
+    color: #34495e;
+}
+
+h1,
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #34495e;
+}
+
+h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-top: 0;
+}
+
+h2 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+h2 i {
+    color: #3498db;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+}
+
+/* 스텝 구분 */
+.step {
+    display: none;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.step.active {
+    display: block;
+}
+
+.btn-container {
+    text-align: center;
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.btn {
+    display: inline-block;
+    background-color: #3498db;
+    color: #fff;
+    padding: 12px 25px;
+    margin: 5px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* 폼 입력 */
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: inline-block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #34495e;
+}
+
+input[type="text"],
+input[type="number"],
+select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    outline: none;
+}
+
+/************************************************************
+    * Step 1 전용(날짜 선택 달력)
+    ************************************************************/
+.calendar-container {
+    margin-top: 20px;
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0 20px 0;
+}
+
+.arrow-btn {
+    cursor: pointer;
+    color: #34495e;
+    font-weight: bold;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 30px;
+    user-select: none;
+    background-color: #fff;
+    transition: all 0.3s ease;
+}
+
+.arrow-btn:hover:not(:disabled) {
+    background-color: #f5f7fa;
+    border-color: #3498db;
+}
+
+.arrow-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.month-year {
+    font-size: 18px;
+    font-weight: bold;
+    color: #34495e;
+}
+
+.calendars {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.calendar {
+    width: 50%;
+}
+
+.calendar-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+.calendar-table thead th {
+    font-weight: 500;
+    color: #7f8c8d;
+    padding-bottom: 10px;
+}
+
+.calendar-table td {
+    width: 14.28%;
+    height: 40px;
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.calendar-table td.disabled {
+    color: #ccc;
+    cursor: default;
+}
+
+.calendar-table td:hover:not(.disabled):not(.selected-start):not(.selected-end):not(.in-range) {
+    background: #f0f0f0;
+}
+
+/* 선택 범위 스타일 */
+.selected-start,
+.selected-end {
+    background-color: #3498db;
+    color: #fff !important;
+    border-radius: 50%;
+}
+
+.in-range {
+    background-color: #e6f2ff;
+}
+
+/************************************************************
+    * Step 2 (교통 수단 선택)
+    ************************************************************/
+.transportation-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.transport-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 200px;
+    height: 220px;
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.transport-box img {
+    width: 120px;
+    height: auto;
+    max-width: 100%;
+    transition: transform 0.3s ease;
+}
+
+.transport-box.selected {
+    border-color: #3498db;
+    background-color: #e6f2ff;
+    transform: scale(1.05);
+}
+
+.transport-box:hover {
+    border-color: #f39c12;
+    transform: translateY(-5px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.transport-box:hover img {
+    transform: scale(1.1);
+}
+
+.transport-box i {
+    font-size: 28px;
+    margin-bottom: 8px;
+    color: #3498db;
+}
+
+@media screen and (max-width: 768px) {
+    .transportation-options {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .transport-box {
+        width: 100%;
+        height: 200px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .transportation-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+/************************************************************
+    * Step 3 (여행 목적 선택)
+    ************************************************************/
+.purpose-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.purpose-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+    gap: 10px;
+}
+
+/* 이미지 스타일 */
+.purpose-box img {
+    width: 280px;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+/* 선택된 상태: 투명한 회색 오버레이 효과 */
+.purpose-box.selected img {
+    transform: scale(1.05);
+    box-shadow: 0 6px 10px rgba(52, 152, 219, 0.4);
+    filter: brightness(80%);
+}
+
+.purpose-box:hover img {
+    transform: scale(1.05);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+.purpose-box span {
+    margin-top: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #34495e;
+    transition: all 0.3s ease;
+}
+
+.purpose-box.selected span {
+    color: #3498db;
+}
+
+@media screen and (max-width: 768px) {
+    .purpose-options {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .purpose-box img {
+        width: 100%;
+        height: 150px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .purpose-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+/************************************************************
+    * Step 4 (예산 입력 & 여행 밀도 선택)
+    ************************************************************/
+/* 예산 입력 폼 */
+#step4 .form-group {
+    max-width: 600px;
+    margin: 0 auto 30px auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#step4 label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    text-align: left;
+    color: #34495e;
+}
+
+#step4 input[type="number"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+#step4 input[type="number"]:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    outline: none;
+}
+
+/* 여행 밀도 선택 (카드형) */
+.density-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.density-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+    gap: 10px;
+    width: 180px;
+    height: 120px;
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.density-box.selected {
+    border-color: #3498db;
+    background-color: #e6f2ff;
+    transform: scale(1.05);
+}
+
+.density-box:hover {
+    border-color: #f39c12;
+    transform: translateY(-5px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.density-box i {
+    font-size: 28px;
+    margin-bottom: 8px;
+    color: #3498db;
+}
+
+.density-box span {
+    font-size: 16px;
+    font-weight: bold;
+    color: #34495e;
+}
+
+@media screen and (max-width: 768px) {
+    .density-options {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+    }
+    
+    .density-box {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .density-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+/************************************************************
+    * Step 5 (숙소 및 이동 방식)
+    ************************************************************/
+#step5 .form-group {
+    max-width: 600px;
+    margin: 0 auto 20px auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#step5 label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    text-align: left;
+    color: #34495e;
+}
+
+#step5 input[type="text"],
+#step5 select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+#step5 input[type="text"]:focus,
+#step5 select:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    outline: none;
+}
+
+/* 이동 방식 선택 스타일 */
+.travel-mode-options {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    max-width: 800px;
+    margin: 0 auto 30px auto;
+}
+
+.travel-mode-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 180px;
+    height: 180px;
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.travel-mode-box img {
+    width: 100px;
+    height: auto;
+    max-width: 100%;
+    margin: 10px 0;
+    transition: transform 0.3s ease;
+}
+
+.travel-mode-box.selected {
+    border-color: #3498db;
+    background-color: #e6f2ff;
+    transform: scale(1.05);
+}
+
+.travel-mode-box:hover {
+    border-color: #f39c12;
+    transform: translateY(-5px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.travel-mode-box:hover img {
+    transform: scale(1.1);
+}
+
+.travel-mode-box i {
+    font-size: 24px;
+    color: #3498db;
+}
+
+.travel-mode-box span {
+    margin-top: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #34495e;
+}
+
+@media screen and (max-width: 768px) {
+    .travel-mode-options {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .travel-mode-box {
+        width: 100%;
+        height: 160px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .travel-mode-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+/************************************************************
+    * Step 6 (최종 확인 및 제출)
+    ************************************************************/
+#step6 {
+    text-align: center;
+}
+
+#step6 p {
+    margin-bottom: 20px;
+    color: #7f8c8d;
+    font-size: 16px;
+}
+
+.summary-container {
+    max-width: 800px;
+    margin: 0 auto 30px auto;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.summary-header {
+    background: linear-gradient(135deg, #3498db, #2ecc71);
+    color: white;
+    padding: 20px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.summary-content {
+    padding: 0;
+}
+
+.summary-item {
+    display: flex;
+    border-bottom: 1px solid #f0f0f0;
+    padding: 15px 20px;
+}
+
+.summary-item:last-child {
+    border-bottom: none;
+}
+
+.summary-label {
+    flex: 0 0 40%;
+    font-weight: 600;
+    color: #34495e;
+    text-align: left;
+}
+
+.summary-value {
+    flex: 0 0 60%;
+    color: #7f8c8d;
+    text-align: left;
+}
+
+.submit-btn {
+    background-color: #2ecc71;
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.submit-btn:hover {
+    background-color: #27ae60;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.back-btn {
+    background-color: #95a5a6;
+}
+
+.back-btn:hover {
+    background-color: #7f8c8d;
+}
+
+@media screen and (max-width: 768px) {
+    .summary-item {
+        flex-direction: column;
+    }
+    
+    .summary-label, .summary-value {
+        flex: 0 0 100%;
+    }
+    
+    .summary-label {
+        margin-bottom: 5px;
+    }
+}

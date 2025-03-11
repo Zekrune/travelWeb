@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ワクワク:여행 일정 확정</title>
+    <!-- 폰트 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <!-- 아이콘용(폰트어썸) CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+        integrity="sha512-acmXf6X10CqU2tyNYL/v7+YjFGv1IMZBCqYCK4RFY5cfkNdxdK2wLDMA4dlVaR49kWuSnA5W0/4aAMUyQXo1ww=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- CSS 파일 -->
+    <link rel="stylesheet" th:href="@{/css/itineraries/createItinerary.css}">
+    <link rel="stylesheet" th:href="@{/css/itineraries/resultItinerary.css}">
+</head>
+
+<body>
+    <div class="container">
+        <div class="result-header">
+            <h1><i class="fas fa-check-circle"></i> 여행 일정 확정 완료</h1>
+            <p class="subtitle">여행 계획이 성공적으로 저장되었습니다.</p>
+        </div>
+
+        <div class="plan-overview">
+            <div class="plan-image-container">
+                <div class="plan-image" th:if="${scheduleItem.planPhoto != null && !scheduleItem.planPhoto.isEmpty()}"
+                    th:style="'background-image: url(' + ${scheduleItem.planPhoto} + ');'">
+                </div>
+                <div class="plan-image default-image"
+                    th:if="${scheduleItem.planPhoto == null || scheduleItem.planPhoto.isEmpty()}">
+                    <i class="fas fa-image"></i>
+                    <span>이미지 없음</span>
+                </div>
+            </div>
+
+            <div class="plan-details">
+                <h2 th:text="${scheduleItem.planName}">여행 이름</h2>
+                <div class="plan-info">
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-map-marker-alt"></i> 출발지</div>
+                        <div class="info-value" th:text="${scheduleItem.departLocation}">서울</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-map-pin"></i> 목적지</div>
+                        <div class="info-value" th:text="${scheduleItem.destination}">오사카</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-calendar-alt"></i> 여행 기간</div>
+                        <div class="info-value">
+                            <span th:text="${scheduleItem.startDate}">2025-03-11</span> ~
+                            <span th:text="${scheduleItem.endDate}">2025-03-13</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="plan-description"
+                    th:if="${scheduleItem.planDescription != null && !scheduleItem.planDescription.isEmpty()}">
+                    <p th:text="${scheduleItem.planDescription}">여행 설명</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="itinerary-section">
+            <h2><i class="fas fa-list-ul"></i> 일정 상세</h2>
+
+            <div id="itineraryContainer" class="itinerary-container">
+                <!-- 로딩 스피너 -->
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner"></i>
+                </div>
+            </div>
+
+            <!-- 지도 영역 (향후 구현) -->
+            <div class="map-section">
+                <h2><i class="fas fa-map"></i> 여행 경로</h2>
+                <div id="map" class="map-container">
+                    <div class="map-placeholder">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <p>지도는 향후 업데이트될 예정입니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-container">
+                <a href="/itineraries" class="btn back-btn"><i class="fas fa-arrow-left"></i> 일정 목록으로</a>
+                <a href="#" class="btn submit-btn" onclick="window.print()"><i class="fas fa-print"></i> 인쇄하기</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 일정 JSON 데이터 (hidden) -->
+    <div id="scheduleJsonData" style="display: none;" th:text="${scheduleItem.scheduleJson}"></div>
+
+</body>
+
+</html>

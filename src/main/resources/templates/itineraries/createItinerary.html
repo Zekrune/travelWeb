@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>ワクワク:여행 일정 생성</title>
+    <!-- 폰트 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <!-- 아이콘용(폰트어썸) CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+        integrity="sha512-acmXf6X10CqU2tyNYL/v7+YjFGv1IMZBCqYCK4RFY5cfkNdxdK2wLDMA4dlVaR49kWuSnA5W0/4aAMUyQXo1ww=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- CSS 파일 -->
+    <link rel="stylesheet" href="/css/itineraries/createItinerary.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>여행 일정 생성</h1>
+        <!-- Step 1: 출발지/목적지 + 2개월 달력 -->
+        <div class="step active" id="step1">
+            <h2><i class="fas fa-map-marked-alt"></i> 목적지 및 날짜 선택</h2>
+            <div class="form-group">
+                <label for="departLocation">출발지</label>
+                <input type="text" id="departLocation" placeholder="예: 서울" required />
+            </div>
+            <div class="form-group">
+                <label for="destination">목적지</label>
+                <input type="text" id="destination" placeholder="예: 오사카" required />
+            </div>
+            <p style="text-align:center; color:#7f8c8d; margin-bottom: 20px;">
+                * 여행 기간(여행지 도착 날짜, 여행지 출발 날짜)을 선택해 주세요.
+            </p>
+            <!-- 2개월 달력 -->
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <button id="prevBtn" class="arrow-btn">&lt;</button>
+                    <div class="month-year" id="monthYearLabel"></div>
+                    <button id="nextBtn" class="arrow-btn">&gt;</button>
+                </div>
+                <div class="calendars">
+                    <div class="calendar">
+                        <table class="calendar-table" id="calendar1">
+                            <thead>
+                                <tr>
+                                    <th>일</th>
+                                    <th>월</th>
+                                    <th>화</th>
+                                    <th>수</th>
+                                    <th>목</th>
+                                    <th>금</th>
+                                    <th>토</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="calendar">
+                        <table class="calendar-table" id="calendar2">
+                            <thead>
+                                <tr>
+                                    <th>일</th>
+                                    <th>월</th>
+                                    <th>화</th>
+                                    <th>수</th>
+                                    <th>목</th>
+                                    <th>금</th>
+                                    <th>토</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="btn-container">
+                <button class="btn" type="button" onclick="goNextFromStep1()">다음</button>
+            </div>
+        </div>
+
+        <!-- Step 2: 교통 수단 선택 -->
+        <div class="step" id="step2">
+            <h2><i class="fas fa-plane"></i> 교통 수단 선택</h2>
+            <div class="transportation-options">
+                <div class="transport-box" data-value="비행기" onclick="selectTransportation(this)">
+                    <i class="fas fa-plane"></i>
+                    <img src="/img/plan/transportation/plane.png" alt="비행기" />
+                    <span>비행기</span>
+                </div>
+                <div class="transport-box" data-value="기차" onclick="selectTransportation(this)">
+                    <i class="fas fa-train"></i>
+                    <img src="/img/plan/transportation/train.png" alt="기차" />
+                    <span>기차</span>
+                </div>
+                <div class="transport-box" data-value="버스" onclick="selectTransportation(this)">
+                    <i class="fas fa-bus"></i>
+                    <img src="/img/plan/transportation/bus.png" alt="버스" />
+                    <span>버스</span>
+                </div>
+                <div class="transport-box" data-value="자동차" onclick="selectTransportation(this)">
+                    <i class="fas fa-car"></i>
+                    <img src="/img/plan/transportation/car.png" alt="자동차" />
+                    <span>자동차</span>
+                </div>
+                <div class="transport-box" data-value="배" onclick="selectTransportation(this)">
+                    <i class="fas fa-ship"></i>
+                    <img src="/img/plan/transportation/ship.png" alt="배" />
+                    <span>배</span>
+                </div>
+                <div class="transport-box" data-value="자전거" onclick="selectTransportation(this)">
+                    <i class="fas fa-bicycle"></i>
+                    <img src="/img/plan/transportation/bicycle.png" alt="자전거" />
+                    <span>자전거</span>
+                </div>
+            </div>
+            <div class="btn-container">
+                <button class="btn back-btn" type="button" onclick="prevStep()">이전</button>
+                <button class="btn" type="button" onclick="nextStep()">다음</button>
+            </div>
+        </div>
+
+        <!-- Step 3: 여행 목적 선택 -->
+        <div class="step" id="step3">
+            <h2><i class="fas fa-bullseye"></i> 여행 목적 선택</h2>
+            <div class="purpose-options">
+                <div class="purpose-box" data-value="관광" onclick="selectPurpose(this)">
+                    <img src="/img/plan/purpose/tourism.jpeg" alt="관광" />
+                    <span>관광</span>
+                </div>
+                <div class="purpose-box" data-value="휴양" onclick="selectPurpose(this)">
+                    <img src="/img/plan/purpose/vacation.jpg" alt="휴양" />
+                    <span>휴양</span>
+                </div>
+                <div class="purpose-box" data-value="맛집 탐방" onclick="selectPurpose(this)">
+                    <img src="/img/plan/purpose/food.jpg" alt="맛집 탐방" />
+                    <span>맛집 탐방</span>
+                </div>
+                <div class="purpose-box" data-value="쇼핑" onclick="selectPurpose(this)">
+                    <img src="/img/plan/purpose/shopping.jpg" alt="쇼핑" />
+                    <span>쇼핑</span>
+                </div>
+                <div class="purpose-box" data-value="자연 탐험" onclick="selectPurpose(this)">
+                    <img src="/img/plan/purpose/nature.jpg" alt="자연 탐험" />
+                    <span>자연 탐험</span>
+                </div>
+                <div class="purpose-box" data-value="애니메이션" onclick="selectPurpose(this)">
+                    <img src="/img/plan/purpose/anime.jpg" alt="애니메이션" />
+                    <span>애니메이션</span>
+                </div>
+            </div>
+            <div class="btn-container">
+                <button class="btn back-btn" type="button" onclick="prevStep()">이전</button>
+                <button class="btn" type="button" onclick="nextStep()">다음</button>
+            </div>
+        </div>
+
+        <!-- Step 4: 예산 입력 및 여행 밀도 선택 -->
+        <div class="step" id="step4">
+            <h2><i class="fas fa-wallet"></i> 예산 입력</h2>
+            <div class="form-group">
+                <label for="budget">예산(원)</label>
+                <input type="number" id="budget" placeholder="예: 500000" />
+            </div>
+            <h2><i class="fas fa-tachometer-alt"></i> 여행 밀도 선택</h2>
+            <div class="density-options">
+                <div class="density-box" data-value="여유롭게" onclick="selectDensity(this)">
+                    <i class="fas fa-coffee"></i>
+                    <span>여유롭게</span>
+                </div>
+                <div class="density-box" data-value="적당히" onclick="selectDensity(this)">
+                    <i class="fas fa-balance-scale"></i>
+                    <span>적당히</span>
+                </div>
+                <div class="density-box" data-value="빡빡하게" onclick="selectDensity(this)">
+                    <i class="fas fa-running"></i>
+                    <span>빡빡하게</span>
+                </div>
+            </div>
+            <div class="btn-container">
+                <button class="btn back-btn" type="button" onclick="prevStep()">이전</button>
+                <!-- Step4의 다음 버튼은 goNextFromStep4()를 통해 budget 처리를 함 -->
+                <button class="btn" type="button" onclick="goNextFromStep4()">다음</button>
+            </div>
+        </div>
+
+        <!-- Step 5: 숙소 및 이동 방식 -->
+        <div class="step" id="step5">
+            <h2><i class="fas fa-hotel"></i> 숙소 및 이동 방식</h2>
+            <div class="form-group">
+                <label for="hotelLocation">숙소 위치</label>
+                <input type="text" id="hotelLocation" placeholder="예: 도톤보리 근처" />
+            </div>
+
+            <h2><i class="fas fa-walking"></i> 현지 이동 방식 선택</h2>
+            <div class="travel-mode-options">
+                <div class="travel-mode-box" data-value="도보" onclick="selectTravelMode(this)">
+                    <i class="fas fa-walking"></i>
+                    <img src="/img/plan/travel-mode/walking.png" alt="도보"
+                        onerror="this.src='/img/plan/travel-mode/walking.png'; this.onerror=null;" />
+                    <span>도보</span>
+                </div>
+                <div class="travel-mode-box" data-value="대중교통" onclick="selectTravelMode(this)">
+                    <i class="fas fa-subway"></i>
+                    <img src="/img/plan/travel-mode/public-transport.png" alt="대중교통"
+                        onerror="this.src='/img/plan/travel-mode/public-transport.png'; this.onerror=null;" />
+                    <span>대중교통</span>
+                </div>
+                <div class="travel-mode-box" data-value="렌터카" onclick="selectTravelMode(this)">
+                    <i class="fas fa-car"></i>
+                    <img src="/img/plan/travel-mode/rental-car.png" alt="렌터카"
+                        onerror="this.src='/img/plan/travel-mode/rental-car.png'; this.onerror=null;" />
+                    <span>렌터카</span>
+                </div>
+                <div class="travel-mode-box" data-value="택시" onclick="selectTravelMode(this)">
+                    <i class="fas fa-taxi"></i>
+                    <img src="/img/plan/travel-mode/taxi.png" alt="택시"
+                        onerror="this.src='/img/plan/travel-mode/taxi.png'; this.onerror=null;" />
+                    <span>택시</span>
+                </div>
+            </div>
+
+            <div class="btn-container">
+                <button class="btn back-btn" type="button" onclick="prevStep()">이전</button>
+                <button class="btn" type="button" onclick="nextStep()">다음</button>
+            </div>
+        </div>
+
+        <!-- Step 6: 최종 확인 및 제출 -->
+        <div class="step" id="step6">
+            <h2><i class="fas fa-check-circle"></i> 입력 완료</h2>
+            <p>선택한 여행 정보를 확인하세요.</p>
+            <div id="summary"></div>
+            <div class="btn-container">
+                <button class="btn back-btn" type="button" onclick="prevStep()">이전</button>
+                <button class="btn submit-btn" type="button" onclick="submitPlan()">여행 계획 생성하기</button>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="/js/itineraries/createItinerary.js"></script>
+
+</html>

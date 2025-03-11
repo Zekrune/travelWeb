@@ -1,0 +1,215 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.header {
+    background-color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.back-button {
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.header-title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: 600;
+}
+
+.header-actions {
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.banner {
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.banner-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+    padding: 20px;
+    color: white;
+}
+
+.plan-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.plan-dates {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.plan-dates i {
+    margin-right: 5px;
+}
+
+.content-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.info-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.card-header i {
+    margin-right: 10px;
+    color: #3498db;
+}
+
+.card-body {
+    padding: 15px;
+}
+
+.info-row {
+    display: flex;
+    margin-bottom: 15px;
+}
+
+.info-label {
+    flex: 1;
+    color: #777;
+}
+
+.info-value {
+    flex: 2;
+    font-weight: 500;
+}
+
+.itinerary-container {
+    margin-top: 30px;
+}
+
+.day-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.day-header {
+    background-color: #3498db;
+    color: white;
+    padding: 10px 15px;
+    font-weight: 600;
+}
+
+.schedule-item {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+}
+
+.schedule-time {
+    width: 80px;
+    color: #3498db;
+    font-weight: 600;
+}
+
+.schedule-details {
+    flex: 1;
+}
+
+.schedule-location {
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.schedule-category {
+    color: #777;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.schedule-duration,
+.schedule-cost {
+    color: #777;
+    font-size: 14px;
+    display: inline-block;
+    margin-right: 15px;
+}
+
+.json-container {
+    background-color: #f8f8f8;
+    padding: 15px;
+    border-radius: 5px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    overflow-x: auto;
+    font-size: 14px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+    gap: 15px;
+}
+
+.action-button {
+    padding: 12px 25px;
+    border-radius: 25px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.primary-button {
+    background-color: #3498db;
+    color: white;
+}
+
+.secondary-button {
+    background-color: #eee;
+    color: #333;
+}
+
+.action-button i {
+    margin-right: 8px;
+}

@@ -1,0 +1,144 @@
+
+.itinerary-container {
+    margin-top: 20px;
+}
+
+.day-container {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.day-header {
+    background-color: #4a6fa5;
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.day-title {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.day-info {
+    display: flex;
+    gap: 15px;
+    font-size: 0.9rem;
+}
+
+.day-weather,
+.day-cost {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.schedule-container {
+    padding: 15px;
+}
+
+.schedule-item {
+    display: flex;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    position: relative;
+}
+
+.schedule-item:last-child {
+    border-bottom: none;
+}
+
+.schedule-time {
+    min-width: 80px;
+    font-weight: bold;
+    color: #4a6fa5;
+}
+
+.schedule-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.schedule-location {
+    font-weight: 500;
+}
+
+.schedule-details {
+    display: flex;
+    gap: 15px;
+    margin-top: 5px;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.category-badge {
+    background-color: #e9f2ff;
+    color: #4a6fa5;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+}
+
+.loading-spinner i {
+    font-size: 2rem;
+    color: #4a6fa5;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.error-message {
+    text-align: center;
+    padding: 20px;
+    color: #e74c3c;
+    background-color: #fdf3f2;
+    border-radius: 5px;
+    margin: 20px 0;
+}
+
+.empty-schedule {
+    text-align: center;
+    padding: 15px;
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+/* 인쇄 스타일 */
+@media print {
+    .btn-container {
+        display: none;
+    }
+
+    body {
+        background-color: white;
+    }
+
+    .container {
+        box-shadow: none;
+        max-width: 100%;
+        padding: 0;
+    }
+}

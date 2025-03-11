@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ワクワク:문의 작성</title>
+    <!-- 폰트 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <!-- 아이콘용(폰트어썸) CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            background-color: #4a6da7;
+            color: white;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 1.5em;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .header h1 i {
+            margin-right: 10px;
+        }
+
+        .header button {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s;
+        }
+
+        .header button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            flex-grow: 1;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 300;
+        }
+
+        .counseling-form {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .form-group input[type="text"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-family: 'Noto Sans KR', sans-serif;
+            font-size: 1em;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #4a6da7;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 109, 167, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        .help-text {
+            font-size: 0.85em;
+            color: #6c757d;
+            margin-top: 5px;
+            margin-left: 24px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            border: none;
+            transition: background-color 0.3s;
+        }
+
+        .primary-btn {
+            background-color: #4a6da7;
+            color: white;
+        }
+
+        .primary-btn:hover {
+            background-color: #3a5a8f;
+        }
+
+        .secondary-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .secondary-btn:hover {
+            background-color: #5a6268;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .counseling-form {
+                padding: 20px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1><i class="fas fa-pen"></i> 문의 작성</h1>
+        <button onclick="location.href='/counseling'">목록으로</button>
+    </div>
+
+    <div class="container">
+        <p class="subtitle">여행 관련 궁금한 점이나 불편사항을 문의해주세요.</p>
+
+        <form th:action="@{/counseling/create}" method="post" class="counseling-form">
+            <div class="form-group">
+                <label for="title">제목</label>
+                <input type="text" id="title" name="title" required placeholder="문의 제목을 입력해주세요">
+            </div>
+
+            <div class="form-group">
+                <label for="category">카테고리</label>
+                <select id="category" name="category" required>
+                    <option value="">카테고리 선택</option>
+                    <option th:each="category : ${categories}" th:value="${category}" th:text="${category.displayName}">
+                        일반 문의</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="content">내용</label>
+                <textarea id="content" name="content" rows="10" required placeholder="문의 내용을 상세히 입력해주세요"></textarea>
+            </div>
+
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="isPrivate" name="isPrivate" value="true">
+                <label for="isPrivate">비공개 문의로 작성</label>
+                <p class="help-text">비공개 문의는 작성자와 관리자만 확인할 수 있습니다.</p>
+            </div>
+
+            <div class="form-actions">
+                <a th:href="@{/counseling}" class="btn secondary-btn">취소</a>
+                <button type="submit" class="btn primary-btn">문의 등록</button>
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>

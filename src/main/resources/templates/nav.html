@@ -1,17 +1,17 @@
 <header th:fragment="navbar">
-    <div class="logo">ワクワク</div>
+    <a th:href="@{/main}" class="logo" style="text-decoration: none; color: inherit;">ワクワク</a>
     <nav class="nav-links">
-        <a href="#">여행지</a>
-        <a href="/plans/planMain">여행 생성</a>
+        <a th:href="@{/attractions}">여행지</a>
+        <a th:href="@{/itineraries/mainPage}">여행 생성</a>
         <a href="#">리뷰</a>
         <a href="#">커뮤니티</a>
         <a href="#">고객지원</a>
         <div class="user-menu">
             <a href="#" class="user-icon" onclick="toggleMenu()">마이페이지</a>
             <div class="dropdown-menu" id="dropdownMenu">
-                <a href="#">나의 여행</a>
-                <a href="#">1:1 문의</a>
-                <a href="/users/logout">로그아웃</a>
+                <a th:href="@{/schedule/myPage}">나의 여행</a>
+                <a th:href="@{/counseling}">1:1 문의</a>
+                <a th:href="@{/users/logout}">로그아웃</a>
             </div>
         </div>
     </nav>

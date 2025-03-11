@@ -21,6 +21,10 @@ public class UserService {
 	// 회원가입
 	@Transactional
 	public User saveUser(User user) {
+		// 유효성 검사 추가
+		if (user.getUsername() == null || user.getPassword() == null) {
+			throw new IllegalArgumentException("사용자 이름과 비밀번호는 필수입니다.");
+		}
 		// 패스워드 암호화
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		// 권한부여

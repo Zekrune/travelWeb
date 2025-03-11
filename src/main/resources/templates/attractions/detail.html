@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${attraction.mainTitle + ' - ワクワク'}">관광 명소 상세 - ワクワク</title>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --accent-color: #f39c12;
+            --text-color: #34495e;
+            --light-gray: #f5f7fa;
+            --dark-gray: #7f8c8d;
+            --white: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--light-gray);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .attraction-detail-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .attraction-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            color: var(--white);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .attraction-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .attraction-subtitle {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 0;
+            font-weight: 300;
+        }
+
+        .attraction-image-container {
+            position: relative;
+            margin-bottom: 30px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .attraction-image {
+            width: 100%;
+            max-height: 500px;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        .attraction-image:hover {
+            transform: scale(1.02);
+        }
+
+        .attraction-content {
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            line-height: 1.8;
+            font-size: 16px;
+        }
+
+        .attraction-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .attraction-content p {
+            margin-bottom: 15px;
+        }
+
+        .attraction-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-item {
+            background-color: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .info-item:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .info-label {
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+            font-size: 16px;
+        }
+
+        .info-value {
+            color: var(--text-color);
+            word-break: break-word;
+        }
+
+        .info-value a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .info-value a:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+        }
+
+        .map-container {
+            height: 400px;
+            margin-bottom: 30px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: var(--accent-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            box-shadow: var(--shadow);
+        }
+
+        .back-btn:hover {
+            background-color: #e67e22;
+            transform: translateY(-3px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .not-found-container {
+            background-color: var(--white);
+            padding: 50px 30px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .not-found-container h1 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .not-found-container p {
+            color: var(--dark-gray);
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .attraction-header {
+                padding: 20px;
+            }
+
+            .attraction-title {
+                font-size: 24px;
+            }
+
+            .attraction-subtitle {
+                font-size: 16px;
+            }
+
+            .attraction-content {
+                padding: 20px;
+            }
+
+            .info-item {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 네비게이션 바 포함 -->
+    <div th:replace="~{nav :: navbar}"></div>
+
+    <div class="attraction-detail-container" th:if="${attraction != null}">
+        <div class="attraction-header">
+            <h1 class="attraction-title" th:text="${attraction.mainTitle}">관광 명소 이름</h1>
+            <div class="attraction-subtitle"
+                th:text="${attraction.subtitle != null && attraction.subtitle != '' ? attraction.subtitle : attraction.gugunNm}">
+                부제목</div>
+        </div>
+
+        <div class="attraction-image-container">
+            <img class="attraction-image" th:src="${attraction.mainImgNormal}" th:alt="${attraction.mainTitle}"
+                onerror="this.src='/img/no-image.jpg'">
+        </div>
+
+        <div class="attraction-content" th:utext="${attraction.itemcntnts}">
+            관광 명소 상세 내용
+        </div>
+
+        <div class="attraction-info-grid">
+            <div class="info-item" th:if="${attraction.addr1 != null && attraction.addr1 != ''}">
+                <div class="info-label">주소</div>
+                <div class="info-value" th:text="${attraction.addr1}">주소</div>
+            </div>
+
+            <div class="info-item" th:if="${attraction.cntctTel != null && attraction.cntctTel != ''}">
+                <div class="info-label">연락처</div>
+                <div class="info-value" th:text="${attraction.cntctTel}">연락처</div>
+            </div>
+
+            <div class="info-item" th:if="${attraction.usageAmount != null && attraction.usageAmount != ''}">
+                <div class="info-label">이용 요금</div>
+                <div class="info-value" th:text="${attraction.usageAmount}">이용 요금</div>
+            </div>
+
+            <div class="info-item"
+                th:if="${attraction.usageDayWeekAndTime != null && attraction.usageDayWeekAndTime != ''}">
+                <div class="info-label">이용 시간</div>
+                <div class="info-value" th:text="${attraction.usageDayWeekAndTime}">이용 시간</div>
+            </div>
+
+            <div class="info-item" th:if="${attraction.hldyInfo != null && attraction.hldyInfo != ''}">
+                <div class="info-label">휴일 정보</div>
+                <div class="info-value" th:text="${attraction.hldyInfo}">휴일 정보</div>
+            </div>
+
+            <div class="info-item" th:if="${attraction.trfcInfo != null && attraction.trfcInfo != ''}">
+                <div class="info-label">교통 정보</div>
+                <div class="info-value" th:text="${attraction.trfcInfo}">교통 정보</div>
+            </div>
+
+            <div class="info-item" th:if="${attraction.homepageUrl != null && attraction.homepageUrl != ''}">
+                <div class="info-label">홈페이지</div>
+                <div class="info-value">
+                    <a th:href="${attraction.homepageUrl}" target="_blank" th:text="${attraction.homepageUrl}">홈페이지
+                        URL</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 지도 표시 -->
+        <div class="map-container" id="map" th:if="${attraction.lat != null && attraction.lng != null}"></div>
+
+        <a href="/attractions" class="back-btn">목록으로 돌아가기</a>
+    </div>
+
+    <!-- 관광 명소가 없을 경우 -->
+    <div class="not-found-container" th:if="${attraction == null}">
+        <h1>관광 명소를 찾을 수 없습니다.</h1>
+        <p>요청하신 관광 명소 정보를 찾을 수 없습니다.</p>
+        <a href="/attractions" class="back-btn">목록으로 돌아가기</a>
+    </div>
+
+    <!-- 카카오맵 API -->
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_MAP_API_KEY"></script>
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            const attraction = /*[[${attraction}]]*/ null;
+
+            if (attraction && attraction.lat && attraction.lng) {
+                const mapContainer = document.getElementById('map');
+                const mapOption = {
+                    center: new kakao.maps.LatLng(attraction.lat, attraction.lng),
+                    level: 3
+                };
+
+                const map = new kakao.maps.Map(mapContainer, mapOption);
+
+                // 마커 생성
+                const markerPosition = new kakao.maps.LatLng(attraction.lat, attraction.lng);
+                const marker = new kakao.maps.Marker({
+                    position: markerPosition
+                });
+
+                // 마커 지도에 표시
+                marker.setMap(map);
+
+                // 인포윈도우 생성
+                const infowindow = new kakao.maps.InfoWindow({
+                    content: '<div style="padding:5px;font-size:12px;">' + attraction.mainTitle + '</div>'
+                });
+
+                // 인포윈도우 표시
+                infowindow.open(map, marker);
+            }
+        });
+    </script>
+</body>
+<script th:src="@{/js/script.js}"></script>
+
+</html>
