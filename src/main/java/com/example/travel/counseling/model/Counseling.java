@@ -40,9 +40,11 @@ public class Counseling {
     @Column(name = "answered_at")
     private LocalDateTime answeredAt;
 
+    @Builder.Default
     @Column(name = "is_answered", nullable = false)
     private boolean isAnswered = false;
 
+    @Builder.Default
     @Column(name = "is_private", nullable = false)
     private boolean isPrivate = false;
 

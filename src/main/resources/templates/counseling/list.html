@@ -10,6 +10,9 @@
         rel="stylesheet">
     <!-- 아이콘용(폰트어썸) CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- CSS 파일 -->
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/counseling/counseling.css}">
     <style>
         * {
             margin: 0;
@@ -281,13 +284,18 @@
 </head>
 
 <body>
-    <div class="header">
+    <!-- 네비게이션 바 포함 -->
+    <div th:replace="~{nav :: navbar}"></div>
+
+    <div class="counseling-header">
         <h1><i class="fas fa-comments"></i> 1:1 문의 내역</h1>
-        <a th:href="@{/main}" class="btn" style="background-color: rgba(255, 255, 255, 0.2); color: white; padding: 8px 15px; border-radius: 4px; text-decoration: none; font-size: 0.9em; transition: background-color 0.3s;">HOME</a>
+        <a th:href="@{/main}" class="btn">
+            <i class="fas fa-home"></i> 홈으로
+        </a>
     </div>
 
     <div class="container">
-        <p class="subtitle">여행 관련 궁금한 점이나 불편사항을 문의해주세요.</p>
+        <p class="subtitle">여행 관련 궁금한 점이나 불편사항을 문의해주세요. 빠른 시일 내에 답변 드리겠습니다.</p>
 
         <!-- 알림 메시지 -->
         <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
@@ -308,6 +316,9 @@
             <div th:if="${counselings.empty}" class="empty-list">
                 <i class="fas fa-inbox"></i>
                 <p>문의하신 내역이 없습니다.</p>
+                <a th:href="@{/counseling/create}" class="primary-btn create-btn">
+                    <i class="fas fa-pen"></i> 첫 문의 작성하기
+                </a>
             </div>
 
             <table th:if="${!counselings.empty}" class="counseling-table">
@@ -324,8 +335,7 @@
                     <tr th:each="counseling : ${counselings}">
                         <td th:text="${counseling.id}">1</td>
                         <td>
-                            <a th:href="@{/counseling/{id}(id=${counseling.id})}" th:text="${counseling.title}">문의
-                                제목</a>
+                            <a th:href="@{/counseling/{id}(id=${counseling.id})}" th:text="${counseling.title}">문의 제목</a>
                             <span th:if="${counseling.isPrivate}" class="private-badge">비공개</span>
                         </td>
                         <td th:text="${counseling.category.displayName}">일반 문의</td>
@@ -342,16 +352,14 @@
             <div th:if="${!counselings.empty}" class="pagination">
                 <a th:if="${counselings.hasPrevious()}" th:href="@{/counseling(page=${counselings.number - 1})}"
                     class="page-link">&laquo; 이전</a>
-                <span th:text="${counselings.number + 1} + ' / ' + ${counselings.totalPages}"></span>
+                <span class="page-info" th:text="${counselings.number + 1} + ' / ' + ${counselings.totalPages}"></span>
                 <a th:if="${counselings.hasNext()}" th:href="@{/counseling(page=${counselings.number + 1})}"
                     class="page-link">다음 &raquo;</a>
             </div>
         </div>
     </div>
 
-    <div class="footer">
-        <a th:href="@{/counseling/create}"><i class="fas fa-pen"></i> 1:1 문의하기</a>
-    </div>
+    <script th:src="@{/js/script.js}"></script>
 </body>
 
 </html>

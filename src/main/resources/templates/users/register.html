@@ -4,37 +4,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>회원가입 | Travel Goo</title>
+    <title>ワクワク: 회원가입</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="/css/users/register.css">
 </head>
 
 <body>
     <div class="container">
-        <!-- 왼쪽 패널 (어두운 배경 + 이미지) -->
+        <!-- 왼쪽 패널 (배경 + 이미지) -->
         <div class="left">
-            <h1>무료 계정 만들기</h1>
-            <p>즐거운 여행을 위한 계정을 만들어 보세요.</p>
+            <div class="left-content">
+                <div class="logo">ワクワク</div>
+                <h1>부산 여행의 모든 것</h1>
+                <p>회원가입하고 AI 기반 맞춤형 여행 플래너를 경험해보세요.</p>
+                
+                <div class="features">
+                    <div class="feature-item">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <span>부산 구/군별 관광 명소 탐색</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-robot"></i>
+                        <span>AI 맞춤형 여행 코스 추천</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-comments"></i>
+                        <span>여행자 커뮤니티 참여</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- 오른쪽 패널 (회원가입 폼) -->
         <div class="right">
             <div class="form-container">
                 <h2>회원가입</h2>
+                <p>간단한 정보 입력으로 ワクワク의 모든 서비스를 이용하세요.</p>
+                
                 <form action="/users/register" method="post" th:object="${user}">
                     <div class="form-group">
                         <label for="username">아이디</label>
-                        <input type="text" id="username" th:field="*{username}" required>
+                        <input type="text" id="username" th:field="*{username}" placeholder="영문, 숫자 조합 (4-20자)" required>
                         <div class="error-message" id="username-error">아이디는 영문과 숫자만 가능합니다.</div>
                     </div>
 
                     <div class="form-group">
                         <label for="password">비밀번호</label>
-                        <input type="password" id="password" th:field="*{password}" required>
+                        <input type="password" id="password" th:field="*{password}" placeholder="8자 이상의 비밀번호" required>
                         <div class="error-message" id="password-error">비밀번호는 최소 8자 이상이어야 합니다.</div>
                     </div>
 
                     <div class="form-group">
                         <label for="name">이름</label>
+                        <input type="text" id="name" th:field="*{name}" placeholder="실명을 입력해주세요" required>
                         <input type="text" id="name" th:field="*{name}" required>
                     </div>
 

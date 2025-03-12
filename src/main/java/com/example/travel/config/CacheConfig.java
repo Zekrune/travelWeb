@@ -14,12 +14,11 @@ public class CacheConfig {
     public CacheManager cacheManager() {
         ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
         cacheManager.setCacheNames(java.util.Arrays.asList(
-            "attractionList", 
-            "attractionDetail", 
-            "attractionsByGugun",
-            "recentAttractions",
-            "popularAttractions"
-        ));
+                "attractionList",
+                "attractionDetail",
+                "attractionsByGugun",
+                "recentAttractions",
+                "popularAttractions"));
         return cacheManager;
     }
-} 
+}

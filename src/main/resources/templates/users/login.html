@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ワクワク:로그인</title>
+    <title>ワクワク: 로그인</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <link rel="stylesheet" href="/css/users/login.css">
 </head>
@@ -12,13 +14,13 @@
 <body>
     <form class="login-container" action="/users/login" method="post" th:object="${user}">
         <div class="logo">ワクワク</div>
-        <p class="subtitle">AI 여행 플래너로 간편하게</p>
+        <p class="subtitle">부산 여행의 모든 것, AI 여행 플래너로 간편하게</p>
 
         <input type="text" th:field="*{username}" placeholder="아이디" required>
         <input type="password" th:field="*{password}" placeholder="비밀번호" required>
 
         <div class="checkbox-container">
-            <label><input type="checkbox"> ID 저장</label>
+            <label><input type="checkbox"> 아이디 저장</label>
         </div>
 
         <!-- Google reCAPTCHA -->
@@ -26,13 +28,16 @@
             <div class="g-recaptcha" data-sitekey="your-site-key"></div>
         </div>
 
-        <button type="submit" class="btn-login">로그인</button>
+        <button type="submit" class="btn-login">로그인 <i class="fas fa-sign-in-alt"></i></button>
 
         <div class="social-login">
-            <button class="social-login-button" type="button" onclick="location.href='/oauth2/authorization/google'">구글 로그인</button>
+            <button class="social-login-button" type="button" onclick="location.href='/oauth2/authorization/google'">
+                <i class="fab fa-google"></i> 구글 계정으로 로그인
+            </button>
         </div>
 
-        <a href="/users/register" class="register-link">회원가입</a>
+        <a href="/users/register" class="register-link">아직 계정이 없으신가요? 회원가입</a>
+        <a href="/" class="back-to-home"><i class="fas fa-arrow-left"></i> 메인으로 돌아가기</a>
     </form>
 </body>
 

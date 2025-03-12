@@ -74,7 +74,7 @@ public class AttractionService {
             log.warn("ID가 null인 관광 명소 조회 요청이 있습니다.");
             return Optional.empty();
         }
-        
+
         log.debug("DB에서 ID {}인 관광 명소를 조회합니다.", id);
         return attractionRepository.findById(id);
     }
@@ -178,10 +178,10 @@ public class AttractionService {
             }
         }
 
-        log.info("데이터 처리 결과: 총 {}개 처리, {}개 신규 추가, {}개 업데이트", 
+        log.info("데이터 처리 결과: 총 {}개 처리, {}개 신규 추가, {}개 업데이트",
                 processedCount, newCount, updatedCount);
-        
-        return new int[] {processedCount, newCount, updatedCount};
+
+        return new int[] { processedCount, newCount, updatedCount };
     }
 
     /**
@@ -260,10 +260,6 @@ public class AttractionService {
             // 여전히 item 태그가 없으면 로그 출력
             if (itemList == null || itemList.getLength() == 0) {
                 log.warn("XML에서 item 태그를 찾을 수 없습니다.");
-
-                // 디버깅을 위해 XML 구조 출력
-                printXmlStructure(document.getDocumentElement(), 0);
-
                 return result;
             }
 
@@ -335,7 +331,8 @@ public class AttractionService {
     /**
      * 애플리케이션 시작 시 API에서 데이터를 가져와 DB에 저장합니다.
      */
-    @PostConstruct
+    //애플리케이션 시작 시 실행 **********************************************************
+    // @PostConstruct
     public void initAttractionData() {
         // 데이터 개수 확인
         long count = attractionRepository.count();
@@ -359,18 +356,6 @@ public class AttractionService {
     }
 
     /**
-     * 마지막 업데이트 이후 변경된 데이터만 업데이트합니다.
-     * 기본값: 6시간마다
-     */
-    @Scheduled(fixedRateString = "${attraction.api.delta.update.interval:21600000}")
-    public void deltaUpdate() {
-        // 최근 업데이트 시간 이후의 변경사항만 가져오는 로직
-        // 실제 API에서 이런 기능을 지원하는 경우에만 구현 가능
-        log.info("델타 업데이트 시작 (최근 변경사항만 업데이트)");
-        // 구현 필요
-    }
-
-    /**
      * 모든 캐시를 수동으로 갱신합니다.
      */
     @CacheEvict(value = { "attractionList", "attractionsByGugun", "recentAttractions",
@@ -387,238 +372,11 @@ public class AttractionService {
     }
 
     /**
-     * API 응답을 직접 확인합니다. (디버깅용)
+     * 최대 페이지 수를 설정하여 관광 명소 데이터를 가져와 DB에 저장합니다.
      */
-    public String getApiResponseForDebugging(int page, int size) {
-        try {
-            // API 키가 이미 인코딩되어 있으므로 다시 인코딩하지 않도록 주의
-            String encodedApiKey = apiKey;
-
-            // URL을 직접 구성하여 인코딩 문제 방지
-            String pageUrl = apiUrl + "?serviceKey=" + encodedApiKey + "&pageNo=" + page + "&numOfRows=" + size;
-
-            log.info("API 디버깅 호출: {}", pageUrl);
-
-            // 직접 HTTP 요청 수행
-            URL url = new URL(pageUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-
-            int responseCode = connection.getResponseCode();
-            if (responseCode != 200) {
-                return "API 호출 실패: " + responseCode;
-            }
-
-            // 응답 읽기
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            StringBuilder responseBuilder = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                responseBuilder.append(line).append("\n");
-            }
-            reader.close();
-
-            String responseBody = responseBuilder.toString();
-
-            StringBuilder result = new StringBuilder();
-            result.append("API URL: ").append(pageUrl).append("\n\n");
-            result.append("API 응답 (페이지: ").append(page).append(", 크기: ").append(size).append("):\n\n");
-            result.append("응답 상태 코드: ").append(responseCode).append("\n\n");
-
-            result.append("원본 응답 (처음 1000자):\n");
-            if (responseBody != null) {
-                result.append(responseBody.length() > 1000 ? responseBody.substring(0, 1000) + "..." : responseBody);
-            } else {
-                result.append("(응답 내용 없음)");
-            }
-            result.append("\n\n");
-
-            // 응답 형식 확인
-            if (responseBody != null) {
-                if (responseBody.contains("<response>")) {
-                    result.append("응답 형식: XML\n\n");
-                } else if (responseBody.contains("NORMAL_CODE")) {
-                    result.append("응답 형식: 텍스트 (NORMAL_CODE 포함)\n\n");
-                } else {
-                    result.append("응답 형식: 기타 텍스트\n\n");
-                }
-            }
-
-            // XML 파싱 시도
-            List<AttractionApiData> parsedData = new ArrayList<>();
-            try {
-                Document document = parseXmlDocument(responseBody);
-                parsedData = parseXmlToAttractionApiData(document);
-            } catch (Exception e) {
-                result.append("XML 파싱 실패: ").append(e.getMessage()).append("\n\n");
-                // 텍스트 기반 파싱 시도
-                parsedData = parseTextResponseToAttractionApiData(responseBody);
-            }
-
-            result.append("파싱된 데이터 개수: ").append(parsedData.size()).append("\n\n");
-
-            if (!parsedData.isEmpty()) {
-                result.append("첫 번째 파싱된 데이터:\n");
-                AttractionApiData firstData = parsedData.get(0);
-                result.append("MAIN_TITLE: ").append(firstData.getMAIN_TITLE()).append("\n");
-                result.append("UC_SEQ: ").append(firstData.getUC_SEQ()).append("\n");
-                result.append("LNG: ").append(firstData.getLNG()).append("\n");
-                result.append("ITEMCNTNTS: ").append(
-                        firstData.getITEMCNTNTS() != null && firstData.getITEMCNTNTS().length() > 100
-                                ? firstData.getITEMCNTNTS().substring(0, 100) + "..."
-                                : firstData.getITEMCNTNTS())
-                        .append("\n");
-            }
-
-            return result.toString();
-        } catch (Exception e) {
-            return "API 호출 중 오류 발생: " + e.getMessage();
-        }
-    }
-
-    /**
-     * 텍스트 응답을 AttractionApiData 객체 리스트로 파싱합니다.
-     */
-    private List<AttractionApiData> parseTextResponseToAttractionApiData(String responseText) {
-        List<AttractionApiData> result = new ArrayList<>();
-
-        try {
-            // 응답이 비어있는지 확인
-            if (responseText == null || responseText.trim().isEmpty()) {
-                log.warn("응답이 비어 있습니다.");
-                return result;
-            }
-
-            // 응답 형식 확인 (XML 여부)
-            boolean isXml = responseText.trim().startsWith("<") &&
-                    (responseText.contains("<response>") ||
-                            responseText.contains("<item>") ||
-                            responseText.contains("<items>"));
-
-            if (isXml) {
-                log.info("XML 형식의 응답을 감지했습니다. XML 파서로 처리합니다.");
-                try {
-                    Document document = parseXmlDocument(responseText);
-                    return parseXmlToAttractionApiData(document);
-                } catch (Exception e) {
-                    log.error("XML 파싱 실패: {}", e.getMessage());
-                }
-            }
-
-            // XML이 아니면 텍스트 기반 파싱 시도
-            log.info("텍스트 형식의 응답을 감지했습니다. 텍스트 파서로 처리합니다.");
-
-            // NORMAL_CODE 검색
-            int headerEndIndex = responseText.indexOf("NORMAL_CODE");
-            if (headerEndIndex == -1) {
-                log.warn("응답에서 NORMAL_CODE를 찾을 수 없습니다. 전체 응답을 처리합니다.");
-                // NORMAL_CODE가 없으면 전체 응답을 처리
-                headerEndIndex = 0;
-            } else {
-                headerEndIndex += "NORMAL_CODE".length();
-            }
-
-            String dataText = responseText.substring(headerEndIndex).trim();
-
-            // 데이터가 없으면 빈 결과 반환
-            if (dataText.isEmpty()) {
-                log.warn("응답에 데이터가 없습니다.");
-                return result;
-            }
-
-            // 줄바꿈으로 데이터 분리 (여러 패턴 시도)
-            String[] lines;
-            if (dataText.contains("\n\n")) {
-                lines = dataText.split("\n\n");
-            } else if (dataText.contains("\n")) {
-                lines = dataText.split("\n");
-            } else {
-                // 줄바꿈이 없으면 전체를 하나의 데이터로 처리
-                lines = new String[] { dataText };
-            }
-
-            log.debug("텍스트 응답에서 {}개의 데이터 라인을 찾았습니다.", lines.length);
-
-            for (String line : lines) {
-                if (line.trim().isEmpty()) {
-                    continue;
-                }
-
-                try {
-                    AttractionApiData apiData = parseLineToAttractionApiData(line.trim());
-                    if (apiData != null) {
-                        result.add(apiData);
-                    }
-                } catch (Exception e) {
-                    log.error("데이터 라인 파싱 중 오류 발생: {}", e.getMessage());
-                }
-            }
-
-            log.debug("텍스트 응답에서 총 {}개의 관광 명소 데이터를 파싱했습니다.", result.size());
-        } catch (Exception e) {
-            log.error("텍스트 응답 파싱 실패: {}", e.getMessage(), e);
-        }
-
-        return result;
-    }
-
-    /**
-     * 한 줄의 텍스트를 AttractionApiData 객체로 파싱합니다.
-     */
-    private AttractionApiData parseLineToAttractionApiData(String line) {
-        try {
-            // 디버깅용 로그
-            log.debug("파싱할 라인: {}", line);
-
-            // 공백으로 분리된 필드들을 추출
-            String[] fields = line.split("\\s+");
-
-            // 최소 필드 수 확인 (더 유연하게 처리)
-            if (fields.length < 3) {
-                log.warn("데이터 라인에 충분한 필드가 없습니다: {}", line);
-                return null;
-            }
-
-            AttractionApiData apiData = new AttractionApiData();
-
-            // 첫 번째 필드는 MAIN_TITLE로 간주
-            apiData.setMAIN_TITLE(fields[0]);
-
-            // UC_SEQ가 없으므로 MAIN_TITLE을 UC_SEQ로 사용
-            apiData.setUC_SEQ(fields[0]);
-
-            // 두 번째 필드는 LNG로 간주 (숫자인지 확인)
-            if (fields.length > 1) {
-                String lngField = fields[1];
-                if (lngField.matches("\\d+\\.\\d+")) {
-                    apiData.setLNG(lngField);
-                } else {
-                    // 숫자가 아니면 MAIN_TITLE에 추가
-                    apiData.setMAIN_TITLE(apiData.getMAIN_TITLE() + " " + lngField);
-                }
-            }
-
-            // 나머지 필드들을 적절히 할당
-            StringBuilder description = new StringBuilder();
-            for (int i = 2; i < fields.length; i++) {
-                description.append(fields[i]).append(" ");
-            }
-
-            // 설명을 ITEMCNTNTS에 저장
-            apiData.setITEMCNTNTS(description.toString().trim());
-
-            // 필수 필드 확인
-            if (apiData.getMAIN_TITLE() == null || apiData.getMAIN_TITLE().isEmpty() ||
-                    apiData.getUC_SEQ() == null || apiData.getUC_SEQ().isEmpty()) {
-                log.warn("필수 필드(MAIN_TITLE 또는 UC_SEQ)가 없는 데이터를 건너뜁니다.");
-                return null;
-            }
-
-            return apiData;
-        } catch (Exception e) {
-            log.error("데이터 라인 파싱 중 오류 발생: {}", e.getMessage());
-            return null;
-        }
+    @Transactional
+    public String fetchAndSaveAttractionsWithMaxPages(int maxPages, int size) {
+        return fetchAndSaveAttractionsInRange(1, maxPages, size);
     }
 
     /**
@@ -630,60 +388,62 @@ public class AttractionService {
         int totalNewCount = 0;
         int totalUpdatedCount = 0;
         int totalPages = 0;
-        
+
         try {
             log.info("페이지 범위 {}~{} 관광 명소 데이터 가져오기 시작", startPage, endPage);
-            
+
             // 페이지 범위 유효성 검사
             if (startPage < 1) {
                 startPage = 1;
                 log.warn("시작 페이지가 1보다 작아 1로 설정합니다.");
             }
-            
+
             if (endPage < startPage) {
                 endPage = startPage;
                 log.warn("종료 페이지가 시작 페이지보다 작아 시작 페이지와 동일하게 설정합니다.");
             }
-            
+
             // API 키가 이미 인코딩되어 있으므로 다시 인코딩하지 않도록 주의
             String encodedApiKey = apiKey;
-            
+
             // 각 페이지 처리
             for (int currentPage = startPage; currentPage <= endPage; currentPage++) {
                 // URL을 직접 구성하여 인코딩 문제 방지
-                String pageUrl = apiUrl + "?serviceKey=" + encodedApiKey + "&pageNo=" + currentPage + "&numOfRows=" + size;
-                
+                String pageUrl = apiUrl + "?serviceKey=" + encodedApiKey + "&pageNo=" + currentPage + "&numOfRows="
+                        + size;
+
                 try {
                     log.info("페이지 {} API 호출: {}", currentPage, pageUrl);
-                    
+
                     // 직접 HTTP 요청 수행
                     URL url = new URL(pageUrl);
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("GET");
-                    
+
                     int responseCode = connection.getResponseCode();
                     if (responseCode != 200) {
                         log.error("페이지 {} API 호출 실패: {}", currentPage, responseCode);
                         continue;
                     }
-                    
+
                     // 응답 읽기
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    BufferedReader reader = new BufferedReader(
+                            new InputStreamReader(connection.getInputStream(), "UTF-8"));
                     StringBuilder responseBuilder = new StringBuilder();
                     String line;
                     while ((line = reader.readLine()) != null) {
                         responseBuilder.append(line);
                     }
                     reader.close();
-                    
+
                     String responseBody = responseBuilder.toString();
                     if (responseBody == null || responseBody.trim().isEmpty()) {
                         log.warn("페이지 {} API 응답이 비어 있습니다.", currentPage);
                         continue;
                     }
-                    
+
                     log.debug("페이지 {} API 응답 받음 (길이: {})", currentPage, responseBody.length());
-                    
+
                     // XML 파싱 시도
                     List<AttractionApiData> pageData = new ArrayList<>();
                     try {
@@ -691,40 +451,39 @@ public class AttractionService {
                         pageData = parseXmlToAttractionApiData(document);
                     } catch (Exception e) {
                         log.error("XML 파싱 실패: {}", e.getMessage());
-                        // 텍스트 기반 파싱 시도
-                        pageData = parseTextResponseToAttractionApiData(responseBody);
+                        continue;
                     }
-                    
+
                     if (pageData.isEmpty()) {
                         log.warn("페이지 {}에서 데이터를 찾을 수 없습니다.", currentPage);
                         continue;
                     }
-                    
+
                     // 데이터 처리 및 결과 집계
                     int[] results = processAttractionDataListWithCounts(pageData);
                     int processedCount = results[0];
                     int newCount = results[1];
                     int updatedCount = results[2];
-                    
+
                     totalProcessedCount += processedCount;
                     totalNewCount += newCount;
                     totalUpdatedCount += updatedCount;
                     totalPages++;
-                    
-                    log.info("{}페이지 처리 완료: {}개 데이터 (신규: {}, 업데이트: {})", 
+
+                    log.info("{}페이지 처리 완료: {}개 데이터 (신규: {}, 업데이트: {})",
                             currentPage, processedCount, newCount, updatedCount);
-                    
+
                     // API 호출 간 딜레이 추가 (서버 부하 방지)
                     Thread.sleep(500);
                 } catch (Exception e) {
                     log.error("{}페이지 처리 중 오류 발생: {}", currentPage, e.getMessage(), e);
                 }
             }
-            
+
             String resultMessage = String.format(
                     "페이지 범위 %d~%d 관광 명소 데이터 업데이트 완료: 총 %d개 페이지, %d개 데이터 처리 (신규: %d, 업데이트: %d)",
                     startPage, endPage, totalPages, totalProcessedCount, totalNewCount, totalUpdatedCount);
-            
+
             log.info(resultMessage);
             return resultMessage;
         } catch (Exception e) {
@@ -735,63 +494,15 @@ public class AttractionService {
     }
 
     /**
-     * XML 구조를 디버깅하기 위해 출력합니다.
-     */
-    private void printXmlStructure(Element element, int depth) {
-        StringBuilder indent = new StringBuilder();
-        for (int i = 0; i < depth; i++) {
-            indent.append("  ");
-        }
-
-        log.debug("{}Element: {}", indent, element.getNodeName());
-
-        // 속성 출력
-        if (element.hasAttributes()) {
-            for (int i = 0; i < element.getAttributes().getLength(); i++) {
-                log.debug("{}Attribute: {} = {}", indent,
-                        element.getAttributes().item(i).getNodeName(),
-                        element.getAttributes().item(i).getNodeValue());
-            }
-        }
-
-        // 자식 요소 출력
-        NodeList children = element.getChildNodes();
-        for (int i = 0; i < children.getLength(); i++) {
-            if (children.item(i).getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
-                printXmlStructure((Element) children.item(i), depth + 1);
-            }
-        }
-    }
-
-    /**
-     * 관광 명소 데이터 리스트를 처리합니다. (중복 체크 후 저장 또는 업데이트)
-     * 
-     * @return 처리된 데이터 개수
-     */
-    @Transactional
-    private int processAttractionDataList(List<AttractionApiData> apiDataList) {
-        int[] results = processAttractionDataListWithCounts(apiDataList);
-        return results[0]; // 처리된 데이터 개수만 반환
-    }
-
-    /**
-     * 최대 페이지 수를 설정하여 관광 명소 데이터를 가져와 DB에 저장합니다.
-     */
-    @Transactional
-    public String fetchAndSaveAttractionsWithMaxPages(int maxPages, int size) {
-        return fetchAndSaveAttractionsInRange(1, maxPages, size);
-    }
-
-    /**
      * 모든 관광 명소의 mainTitle에서 괄호와 그 안의 내용을 제거합니다.
      */
     @Transactional
     public void cleanupAllMainTitles() {
         log.info("모든 관광 명소의 mainTitle 정리 시작");
-        
+
         List<Attraction> attractions = attractionRepository.findAll();
         int updatedCount = 0;
-        
+
         for (Attraction attraction : attractions) {
             String originalTitle = attraction.getMainTitle();
             if (originalTitle != null && originalTitle.contains("(")) {
@@ -799,13 +510,13 @@ public class AttractionService {
                 attraction.setMainTitle(cleanedTitle);
                 attractionRepository.save(attraction);
                 updatedCount++;
-                
+
                 if (updatedCount % 100 == 0) {
                     log.info("{}개의 관광 명소 mainTitle 정리 완료", updatedCount);
                 }
             }
         }
-        
+
         log.info("총 {}개의 관광 명소 mainTitle 정리 완료", updatedCount);
     }
 }

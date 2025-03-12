@@ -10,6 +10,9 @@
         rel="stylesheet">
     <!-- 아이콘용(폰트어썸) CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- CSS 파일 -->
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/counseling/counseling.css}">
     <style>
         * {
             margin: 0;
@@ -281,25 +284,51 @@
 </head>
 
 <body>
-    <div class="header">
-        <h1><i class="fas fa-comments"></i> 1:1 문의 내역</h1>
-        <button onclick="location.href='/'">HOME</button>
+    <!-- 네비게이션 바 포함 -->
+    <div th:replace="~{nav :: navbar}"></div>
+
+    <div class="counseling-header">
+        <h1><i class="fas fa-headset"></i> 문의 관리</h1>
+        <div>
+            <a th:href="@{/admin}" class="btn">
+                <i class="fas fa-tachometer-alt"></i> 관리자 대시보드
+            </a>
+            <a th:href="@{/main}" class="btn">
+                <i class="fas fa-home"></i> 홈으로
+            </a>
+        </div>
     </div>
 
     <div class="container">
-        <p class="subtitle">여행 관련 궁금한 점이나 불편사항을 문의해주세요.</p>
+        <p class="subtitle">사용자 문의 관리 페이지입니다. 미답변 문의: <span th:text="${unansweredCount}">0</span>건</p>
 
         <!-- 알림 메시지 -->
         <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
-        <div th:if="${param.error}" class="alert alert-danger">
-            <span th:if="${param.error == 'unauthorized'}">접근 권한이 없습니다.</span>
-            <span th:if="${param.error == 'not_found'}">존재하지 않는 문의입니다.</span>
-        </div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
-        <!-- 문의 작성 버튼 -->
-        <div class="action-buttons">
-            <a th:href="@{/counseling/create}" class="primary-btn">
-                <i class="fas fa-pen"></i> 문의 작성하기
+        <!-- 필터 -->
+        <div class="filter-container">
+            <div class="filter-group">
+                <label for="category-filter">카테고리:</label>
+                <select id="category-filter" onchange="location.href=this.value">
+                    <option value="/admin/counseling">전체</option>
+                    <option th:each="category : ${categories}" 
+                            th:value="@{/admin/counseling(category=${category})}" 
+                            th:text="${category.displayName}"
+                            th:selected="${selectedCategory == category}">
+                        일반 문의
+                    </option>
+                </select>
+            </div>
+            
+            <a th:href="@{/admin/counseling}" class="filter-btn" th:classappend="${answered == null} ? 'active' : ''">
+                전체 보기
+            </a>
+            <a th:href="@{/admin/counseling(answered=false)}" class="filter-btn" th:classappend="${answered != null && !answered} ? 'active' : ''">
+                미답변 문의
+            </a>
+            <a th:href="@{/admin/counseling(answered=true)}" class="filter-btn" th:classappend="${answered != null && answered} ? 'active' : ''">
+                답변 완료
             </a>
         </div>
 
@@ -307,7 +336,7 @@
         <div class="counseling-list">
             <div th:if="${counselings.empty}" class="empty-list">
                 <i class="fas fa-inbox"></i>
-                <p>문의하신 내역이 없습니다.</p>
+                <p>문의 내역이 없습니다.</p>
             </div>
 
             <table th:if="${!counselings.empty}" class="counseling-table">
@@ -316,6 +345,7 @@
                         <th>번호</th>
                         <th>제목</th>
                         <th>카테고리</th>
+                        <th>작성자</th>
                         <th>작성일</th>
                         <th>답변상태</th>
                     </tr>
@@ -324,11 +354,11 @@
                     <tr th:each="counseling : ${counselings}">
                         <td th:text="${counseling.id}">1</td>
                         <td>
-                            <a th:href="@{/counseling/{id}(id=${counseling.id})}" th:text="${counseling.title}">문의
-                                제목</a>
+                            <a th:href="@{/admin/counseling/{id}(id=${counseling.id})}" th:text="${counseling.title}">문의 제목</a>
                             <span th:if="${counseling.isPrivate}" class="private-badge">비공개</span>
                         </td>
                         <td th:text="${counseling.category.displayName}">일반 문의</td>
+                        <td th:text="${counseling.userId}">user123</td>
                         <td th:text="${#temporals.format(counseling.createdAt, 'yyyy-MM-dd')}">2023-08-01</td>
                         <td>
                             <span th:if="${counseling.isAnswered}" class="status answered">답변완료</span>
@@ -340,18 +370,18 @@
 
             <!-- 페이지네이션 -->
             <div th:if="${!counselings.empty}" class="pagination">
-                <a th:if="${counselings.hasPrevious()}" th:href="@{/counseling(page=${counselings.number - 1})}"
-                    class="page-link">&laquo; 이전</a>
-                <span th:text="${counselings.number + 1} + ' / ' + ${counselings.totalPages}"></span>
-                <a th:if="${counselings.hasNext()}" th:href="@{/counseling(page=${counselings.number + 1})}"
-                    class="page-link">다음 &raquo;</a>
+                <a th:if="${counselings.hasPrevious()}" 
+                   th:href="@{/admin/counseling(page=${counselings.number - 1}, answered=${answered}, category=${selectedCategory})}"
+                   class="page-link">&laquo; 이전</a>
+                <span class="page-info" th:text="${counselings.number + 1} + ' / ' + ${counselings.totalPages}"></span>
+                <a th:if="${counselings.hasNext()}" 
+                   th:href="@{/admin/counseling(page=${counselings.number + 1}, answered=${answered}, category=${selectedCategory})}"
+                   class="page-link">다음 &raquo;</a>
             </div>
         </div>
     </div>
 
-    <div class="footer">
-        <a th:href="@{/counseling/create}"><i class="fas fa-pen"></i> 1:1 문의하기</a>
-    </div>
+    <script th:src="@{/js/script.js}"></script>
 </body>
 
 </html>

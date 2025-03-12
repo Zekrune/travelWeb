@@ -50,7 +50,7 @@ public class AttractionController {
         }
 
         model.addAttribute("attractionsPage", attractionsPage);
-        return "attractions/list";
+        return "attractions/attractionList";
     }
 
     /**
@@ -66,7 +66,7 @@ public class AttractionController {
         Optional<Attraction> attractionOpt = attractionService.getAttractionById(id);
         if (attractionOpt.isPresent()) {
             model.addAttribute("attraction", attractionOpt.get());
-            return "attractions/detail";
+            return "attractions/attractionDetail";
         } else {
             log.warn("ID {}인 관광 명소를 찾을 수 없습니다.", id);
             return "redirect:/attractions";
@@ -96,7 +96,7 @@ public class AttractionController {
 
         model.addAttribute("attractionsPage", attractionsPage);
         model.addAttribute("gugunNm", gugunNm);
-        return "attractions/list";
+        return "attractions/attractionList";
     }
 
     /**
@@ -157,82 +157,6 @@ public class AttractionController {
     public String getAttractionCount() {
         long count = attractionService.getAttractionCount();
         return "현재 DB에 저장된 관광 명소 데이터 개수: " + count + "개";
-    }
-
-    /**
-     * API 응답을 직접 확인합니다. (디버깅용)
-     */
-    @GetMapping("/debug-api")
-    @ResponseBody
-    public String debugApiResponse(
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size) {
-        return attractionService.getApiResponseForDebugging(page, size);
-    }
-
-    /**
-     * 특정 페이지의 데이터만 가져와 DB에 저장합니다. (테스트용)
-     */
-    @GetMapping("/fetch-page")
-    @ResponseBody
-    public String fetchAttractionsByPage(
-            @RequestParam(value = "page", defaultValue = "2") int page,
-            @RequestParam(value = "size", defaultValue = "100") int size) {
-        log.info("페이지 {} 관광 명소 데이터 가져오기 요청 받음", page);
-
-        try {
-            // 특정 페이지 범위로 호출하도록 수정
-            String result = attractionService.fetchAndSaveAttractionsInRange(page, page, size);
-            return result;
-        } catch (Exception e) {
-            log.error("페이지 {} 관광 명소 데이터 가져오기 실패", page, e);
-            return "오류 발생: " + e.getMessage();
-        }
-    }
-
-    /**
-     * 모든 데이터를 강제로 다시 가져옵니다. (관리자용)
-     */
-    @GetMapping("/fetch-all")
-    @ResponseBody
-    public String fetchAllAttractions() {
-        log.info("모든 관광 명소 데이터 강제 갱신 요청 받음");
-
-        // 비동기로 데이터 가져오기 시작
-        new Thread(() -> {
-            try {
-                attractionService.fetchAndSaveAttractions();
-            } catch (Exception e) {
-                log.error("관광 명소 데이터 가져오기 실패", e);
-            }
-        }).start();
-
-        return "모든 관광 명소 데이터 강제 갱신이 백그라운드에서 시작되었습니다. 서버 로그를 확인하세요.";
-    }
-
-    /**
-     * API 응답을 직접 확인하고 데이터를 가져오는 테스트 엔드포인트입니다.
-     */
-    @GetMapping("/test-api")
-    @ResponseBody
-    public String testApiAndFetch(
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "100") int size) {
-        log.info("API 테스트 및 데이터 가져오기 요청 받음 (페이지: {}, 크기: {})", page, size);
-
-        try {
-            // 1. API 응답 확인
-            String apiResponse = attractionService.getApiResponseForDebugging(page, size);
-
-            // 2. 데이터 가져오기 시도 (단일 페이지 범위로 호출)
-            String fetchResult = attractionService.fetchAndSaveAttractionsInRange(page, page, size);
-
-            // 3. 결과 반환
-            return "API 테스트 결과:\n\n" + apiResponse + "\n\n데이터 가져오기 결과:\n\n" + fetchResult;
-        } catch (Exception e) {
-            log.error("API 테스트 및 데이터 가져오기 실패", e);
-            return "오류 발생: " + e.getMessage();
-        }
     }
 
     /**

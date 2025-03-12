@@ -1,3 +1,20 @@
+:root {
+    --primary-color: #4dabf7;
+    --primary-light: #c5e3ff;
+    --primary-dark: #1971c2;
+    --secondary-color: #ffffff;
+    --text-color: #343a40;
+    --text-light: #868e96;
+    --background-color: #f8f9fa;
+    --border-color: #dee2e6;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    --transition: all 0.3s ease;
+    --busan-color: #0080c6;
+    --busan-light: #e6f4ff;
+    --busan-dark: #005a8c;
+}
+
 /* 기본 스타일 */
 * {
     margin: 0;
@@ -11,6 +28,7 @@ body {
     height: 100vh;
     width: 100vw;
     overflow: hidden;
+    color: var(--text-color);
 }
 
 .container {
@@ -19,10 +37,10 @@ body {
     height: 100vh;
 }
 
-/* 왼쪽 패널 (어두운 배경 + 이미지) */
+/* 왼쪽 패널 (배경 + 이미지) */
 .left {
     width: 50%;
-    background: linear-gradient(135deg, #000000, #111111);
+    background: linear-gradient(135deg, var(--busan-dark), var(--busan-color));
     color: white;
     display: flex;
     flex-direction: column;
@@ -31,24 +49,64 @@ body {
     text-align: center;
     padding: 40px;
     position: relative;
+    overflow: hidden;
+}
+
+.left::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('/img/busan_night.jpg') no-repeat center center/cover;
+    opacity: 0.2;
+    z-index: 0;
+}
+
+.left-content {
+    position: relative;
+    z-index: 1;
 }
 
 .left h1 {
-    font-size: 32px;
-    font-weight: bold;
-    margin-bottom: 10px;
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .left p {
-    font-size: 16px;
-    opacity: 0.8;
+    font-size: 18px;
+    opacity: 0.9;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-.background-img {
-    position: absolute;
-    bottom: 0;
-    width: 80%;
+.left .logo {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 30px;
+    letter-spacing: 1px;
+}
+
+.left .features {
+    text-align: left;
+    width: 100%;
     max-width: 400px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.feature-item i {
+    margin-right: 10px;
+    font-size: 20px;
+    color: var(--primary-light);
 }
 
 /* 오른쪽 패널 (회원가입 폼) */
@@ -57,19 +115,26 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #ffffff;
+    background-color: var(--secondary-color);
     padding: 50px;
 }
 
 .form-container {
     width: 100%;
-    max-width: 400px;
+    max-width: 450px;
 }
 
 .form-container h2 {
-    font-size: 26px;
-    font-weight: bold;
-    margin-bottom: 20px;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--text-color);
+}
+
+.form-container p {
+    font-size: 16px;
+    color: var(--text-light);
+    margin-bottom: 30px;
 }
 
 /* 폼 스타일 */
@@ -79,71 +144,126 @@ body {
 
 .form-group label {
     display: block;
-    font-size: 14px;
-    font-weight: bold;
-    margin-bottom: 6px;
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--text-color);
 }
 
 .form-group input {
     width: 100%;
     padding: 14px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 16px;
-    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 15px;
+    background: var(--secondary-color);
+    transition: var(--transition);
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--busan-color);
+    box-shadow: 0 0 0 2px rgba(0, 128, 198, 0.2);
 }
 
 /* 입력값 검증 메시지 */
 .error-message {
-    color: red;
-    font-size: 12px;
+    color: #e74c3c;
+    font-size: 13px;
     margin-top: 5px;
     display: none;
 }
 
 .form-group input.invalid {
-    border-color: red;
+    border-color: #e74c3c;
 }
 
 /* 버튼 스타일 */
 .btn {
     width: 100%;
     padding: 14px;
-    background: black;
+    background: var(--busan-color);
     color: white;
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 600;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background 0.3s;
-    margin-top: 10px;
+    transition: var(--transition);
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn:hover {
-    background: #222;
+    background: var(--busan-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
 }
 
-/* 반응형 디자인 (모바일) */
-@media (max-width: 768px) {
+.btn i {
+    margin-left: 8px;
+}
+
+.login-link {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 15px;
+    color: var(--text-light);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.login-link:hover {
+    color: var(--busan-color);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 992px) {
     .container {
         flex-direction: column;
         height: auto;
+        overflow-y: auto;
+    }
+
+    .left, .right {
+        width: 100%;
     }
 
     .left {
-        width: 100%;
         height: 40vh;
+        min-height: 300px;
         padding: 30px;
     }
 
     .right {
-        width: 100%;
         height: auto;
-        padding: 40px;
+        padding: 40px 20px;
     }
 
     .form-container {
-        width: 90%;
+        width: 100%;
+        max-width: 500px;
+    }
+}
+
+@media (max-width: 576px) {
+    .left {
+        height: 35vh;
+        min-height: 250px;
+    }
+
+    .left h1 {
+        font-size: 28px;
+    }
+
+    .left p {
+        font-size: 16px;
+    }
+
+    .form-container h2 {
+        font-size: 24px;
     }
 }

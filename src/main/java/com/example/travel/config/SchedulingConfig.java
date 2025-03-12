@@ -7,4 +7,4 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class SchedulingConfig {
     // 스케줄링 활성화를 위한 설정 클래스
-} 
+}

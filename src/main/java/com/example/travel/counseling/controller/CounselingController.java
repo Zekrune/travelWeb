@@ -35,8 +35,14 @@ public class CounselingController {
         String userId = authentication.getName();
         Page<Counseling> counselings = counselingService.getCounselingsByUserId(userId, pageable);
 
+        // 사용자 문의 통계 추가
+        long totalCounselings = counselingService.countByUserId(userId);
+        long unansweredCounselings = counselingService.countByUserIdAndIsAnswered(userId, false);
+
         model.addAttribute("counselings", counselings);
         model.addAttribute("categories", CounselingCategory.values());
+        model.addAttribute("totalCounselings", totalCounselings);
+        model.addAttribute("unansweredCounselings", unansweredCounselings);
 
         return "counseling/list";
     }
@@ -64,7 +70,7 @@ public class CounselingController {
 
         String userId = authentication.getName();
 
-        Counseling counseling = counselingService.createCounseling(userId, title, content, category, isPrivate);
+        counselingService.createCounseling(userId, title, content, category, isPrivate);
 
         redirectAttributes.addFlashAttribute("message", "문의가 성공적으로 등록되었습니다.");
         return "redirect:/counseling";
@@ -92,5 +98,13 @@ public class CounselingController {
         } else {
             return "redirect:/counseling?error=not_found";
         }
+    }
+
+    /**
+     * 문의 FAQ 페이지
+     */
+    @GetMapping("/faq")
+    public String faqPage() {
+        return "counseling/faq";
     }
 }

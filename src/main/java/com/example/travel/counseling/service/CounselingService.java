@@ -16,15 +16,15 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class CounselingService {
-    
+
     private final CounselingRepository counselingRepository;
-    
+
     /**
      * 새로운 문의 생성
      */
     @Transactional
-    public Counseling createCounseling(String userId, String title, String content, 
-                                      CounselingCategory category, boolean isPrivate) {
+    public Counseling createCounseling(String userId, String title, String content,
+            CounselingCategory category, boolean isPrivate) {
         Counseling counseling = Counseling.builder()
                 .userId(userId)
                 .title(title)
@@ -33,10 +33,10 @@ public class CounselingService {
                 .isPrivate(isPrivate)
                 .isAnswered(false)
                 .build();
-        
+
         return counselingRepository.save(counseling);
     }
-    
+
     /**
      * 문의 상세 조회
      */
@@ -44,7 +44,7 @@ public class CounselingService {
     public Optional<Counseling> getCounselingById(Long id) {
         return counselingRepository.findById(id);
     }
-    
+
     /**
      * 특정 사용자의 문의 목록 조회
      */
@@ -52,7 +52,7 @@ public class CounselingService {
     public Page<Counseling> getCounselingsByUserId(String userId, Pageable pageable) {
         return counselingRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
     }
-    
+
     /**
      * 모든 문의 목록 조회 (관리자용)
      */
@@ -60,7 +60,7 @@ public class CounselingService {
     public Page<Counseling> getAllCounselings(Pageable pageable) {
         return counselingRepository.findAll(pageable);
     }
-    
+
     /**
      * 답변 여부에 따른 문의 목록 조회 (관리자용)
      */
@@ -68,27 +68,27 @@ public class CounselingService {
     public Page<Counseling> getCounselingsByAnswerStatus(boolean isAnswered, Pageable pageable) {
         return counselingRepository.findByIsAnsweredOrderByCreatedAtDesc(isAnswered, pageable);
     }
-    
+
     /**
      * 문의 답변 등록 (관리자용)
      */
     @Transactional
     public Counseling answerCounseling(Long id, String answer, String adminId) {
         Optional<Counseling> optionalCounseling = counselingRepository.findById(id);
-        
+
         if (optionalCounseling.isPresent()) {
             Counseling counseling = optionalCounseling.get();
             counseling.setAnswer(answer);
             counseling.setAnsweredBy(adminId);
             counseling.setAnsweredAt(LocalDateTime.now());
             counseling.setAnswered(true);
-            
+
             return counselingRepository.save(counseling);
         } else {
             throw new IllegalArgumentException("해당 ID의 문의가 존재하지 않습니다: " + id);
         }
     }
-    
+
     /**
      * 미답변 문의 수 조회 (관리자용 대시보드)
      */
@@ -96,7 +96,7 @@ public class CounselingService {
     public long getUnansweredCounselingCount() {
         return counselingRepository.countByIsAnswered(false);
     }
-    
+
     /**
      * 문의 삭제 (관리자용)
      */
@@ -104,12 +104,44 @@ public class CounselingService {
     public void deleteCounseling(Long id) {
         counselingRepository.deleteById(id);
     }
-    
+
     /**
      * 카테고리별 문의 목록 조회
      */
     @Transactional(readOnly = true)
     public Page<Counseling> getCounselingsByCategory(CounselingCategory category, Pageable pageable) {
-        return counselingRepository.findByCategoryOrderByCreatedAtDesc(category.name(), pageable);
+        return counselingRepository.findByCategoryOrderByCreatedAtDesc(category, pageable);
     }
-} 
+    
+    /**
+     * 최근 문의 목록 조회 (관리자 대시보드용)
+     */
+    @Transactional(readOnly = true)
+    public List<Counseling> getRecentCounselings(int limit) {
+        return counselingRepository.findTopByOrderByCreatedAtDesc(limit);
+    }
+    
+    /**
+     * 카테고리별 문의 수 통계 (관리자 대시보드용)
+     */
+    @Transactional(readOnly = true)
+    public long countByCategory(CounselingCategory category) {
+        return counselingRepository.countByCategory(category);
+    }
+    
+    /**
+     * 사용자별 문의 수 조회
+     */
+    @Transactional(readOnly = true)
+    public long countByUserId(String userId) {
+        return counselingRepository.countByUserId(userId);
+    }
+    
+    /**
+     * 사용자의 미답변 문의 수 조회
+     */
+    @Transactional(readOnly = true)
+    public long countByUserIdAndIsAnswered(String userId, boolean isAnswered) {
+        return counselingRepository.countByUserIdAndIsAnswered(userId, isAnswered);
+    }
+}
