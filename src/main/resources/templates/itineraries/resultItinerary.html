@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ワクワク:여행 일정 확정</title>
+    <!-- 폰트 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <!-- 아이콘용(폰트어썸) CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- CSS 파일 연결 -->
+    <link rel="stylesheet" th:href="@{/css/itineraries/resultItinerary.css}">
+    <style>
+        :root {
+            --primary-color: #4a6ee0;
+            --secondary-color: #6c7ae0;
+            --accent-color: #ff9f43;
+            --text-color: #333;
+            --light-gray: #f5f6fa;
+            --medium-gray: #dfe4ea;
+            --dark-gray: #7f8c8d;
+            --error-color: #e74c3c;
+            --success-color: #2ecc71;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f5f6fa;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1 i {
+            margin-right: 10px;
+            color: var(--success-color);
+        }
+
+        .subtitle {
+            color: var(--dark-gray);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        h2 i {
+            margin-right: 10px;
+            color: var(--accent-color);
+        }
+
+        /* 계획 개요 스타일 */
+        .plan-overview {
+            display: flex;
+            margin-bottom: 30px;
+            background-color: var(--light-gray);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .plan-image-container {
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .plan-image {
+            width: 100%;
+            height: 100%;
+            min-height: 200px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .default-image {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--medium-gray);
+            color: white;
+        }
+
+        .default-image i {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .plan-details {
+            flex: 2;
+            padding: 20px;
+        }
+
+        .plan-details h2 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .plan-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: var(--dark-gray);
+            margin-bottom: 5px;
+        }
+
+        .info-label i {
+            margin-right: 5px;
+            color: var(--accent-color);
+        }
+
+        .info-value {
+            font-weight: 500;
+        }
+
+        .plan-description {
+            padding-top: 15px;
+            border-top: 1px solid var(--medium-gray);
+            color: var(--dark-gray);
+            font-style: italic;
+        }
+
+        /* 일정 섹션 스타일 */
+        .itinerary-section {
+            margin-top: 30px;
+        }
+
+        .itinerary-container {
+            margin-bottom: 30px;
+        }
+
+        .day-container {
+            margin-bottom: 25px;
+            border: 1px solid var(--medium-gray);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .day-header {
+            padding: 15px;
+            background-color: var(--light-gray);
+        }
+
+        .day-title {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        .day-date {
+            font-size: 0.9rem;
+            color: var(--dark-gray);
+            margin-left: 10px;
+        }
+
+        .schedule-container {
+            padding: 15px;
+        }
+
+        .schedule-item {
+            display: flex;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 1px solid var(--medium-gray);
+            border-radius: 8px;
+            background-color: white;
+        }
+
+        .schedule-time {
+            width: 80px;
+            flex-shrink: 0;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .schedule-content {
+            flex-grow: 1;
+        }
+
+        .schedule-content p {
+            margin-bottom: 5px;
+        }
+
+        .schedule-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 8px;
+            font-size: 14px;
+            color: var(--dark-gray);
+        }
+
+        .detail-item {
+            background-color: var(--light-gray);
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .detail-item i {
+            margin-right: 5px;
+            color: var(--accent-color);
+        }
+
+        /* 지도 섹션 스타일 */
+        .map-section {
+            margin-bottom: 30px;
+        }
+
+        .map-container {
+            height: 300px;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: var(--light-gray);
+        }
+
+        .map-placeholder {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: var(--dark-gray);
+        }
+
+        .map-placeholder i {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        /* 버튼 스타일 */
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-btn {
+            background-color: var(--medium-gray);
+            color: var(--text-color);
+        }
+
+        .back-btn:hover {
+            background-color: #cfd4da;
+        }
+
+        .submit-btn {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .submit-btn:hover {
+            background-color: #f39c38;
+        }
+
+        /* 로딩 스피너 */
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 50px 0;
+        }
+
+        .loading-spinner i {
+            font-size: 48px;
+            color: var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* 에러 메시지 */
+        .error-message {
+            text-align: center;
+            padding: 30px;
+            color: var(--error-color);
+        }
+
+        .error-message i {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        /* 빈 일정 메시지 */
+        .empty-itinerary {
+            text-align: center;
+            padding: 50px 0;
+            color: var(--dark-gray);
+        }
+
+        .empty-itinerary i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: var(--medium-gray);
+        }
+
+        /* 인쇄 스타일 */
+        @media print {
+            body {
+                background-color: white;
+            }
+
+            .container {
+                margin: 0;
+                padding: 20px;
+                box-shadow: none;
+            }
+
+            .btn-container {
+                display: none;
+            }
+
+            .map-section {
+                display: none;
+            }
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px 10px;
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .plan-overview {
+                flex-direction: column;
+            }
+
+            .plan-image-container {
+                max-width: 100%;
+            }
+
+            .plan-image {
+                height: 200px;
+            }
+
+            .plan-info {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="result-header">
+            <h1><i class="fas fa-check-circle"></i> 여행 일정 확정 완료</h1>
+            <p class="subtitle">여행 계획이 성공적으로 저장되었습니다.</p>
+        </div>
+
+        <div class="plan-overview">
+            <div class="plan-image-container">
+                <div class="plan-image" th:if="${scheduleItem.planPhoto != null && !scheduleItem.planPhoto.isEmpty()}"
+                    th:style="'background-image: url(' + ${scheduleItem.planPhoto} + ');'">
+                </div>
+                <div class="plan-image default-image"
+                    th:if="${scheduleItem.planPhoto == null || scheduleItem.planPhoto.isEmpty()}">
+                    <i class="fas fa-image"></i>
+                    <span>이미지 없음</span>
+                </div>
+            </div>
+
+            <div class="plan-details">
+                <h2 th:text="${scheduleItem.planName}">여행 이름</h2>
+                <div class="plan-info">
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-map-marker-alt"></i> 출발지</div>
+                        <div class="info-value" th:text="${scheduleItem.departLocation}">서울</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-map-pin"></i> 목적지</div>
+                        <div class="info-value" th:text="${scheduleItem.destination}">오사카</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-calendar-alt"></i> 여행 기간</div>
+                        <div class="info-value">
+                            <span th:text="${scheduleItem.startDate}">2025-03-11</span> ~
+                            <span th:text="${scheduleItem.endDate}">2025-03-13</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-plane"></i> 교통 수단</div>
+                        <div class="info-value" th:text="${scheduleItem.transportation}">비행기</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-bullseye"></i> 여행 목적</div>
+                        <div class="info-value" th:text="${scheduleItem.purpose}">관광</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-wallet"></i> 예산</div>
+                        <div class="info-value"
+                            th:text="${#numbers.formatInteger(scheduleItem.budget, 0, 'COMMA') + '원'}">500,000원</div>
+                    </div>
+                </div>
+                <div class="plan-description"
+                    th:if="${scheduleItem.planDescription != null && !scheduleItem.planDescription.isEmpty()}">
+                    <p th:text="${scheduleItem.planDescription}">여행 설명</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="itinerary-section">
+            <h2><i class="fas fa-list-ul"></i> 일정 상세</h2>
+
+            <div id="itineraryContainer" class="itinerary-container">
+                <!-- 로딩 스피너 -->
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner"></i>
+                </div>
+            </div>
+
+            <!-- 지도 영역 (향후 구현) -->
+            <div class="map-section">
+                <h2><i class="fas fa-map"></i> 여행 경로</h2>
+                <div id="map" class="map-container">
+                    <div class="map-placeholder">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <p>지도는 향후 업데이트될 예정입니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-container">
+                <a th:href="@{/schedule/myPage}" class="btn back-btn"><i class="fas fa-arrow-left"></i> 일정 목록으로</a>
+                <a href="#" class="btn submit-btn" onclick="window.print()"><i class="fas fa-print"></i> 인쇄하기</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 일정 JSON 데이터 (hidden) -->
+    <div id="scheduleJsonData" style="display: none;" th:text="${scheduleItem.scheduleJson}"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 일정 데이터 로드
+            const scheduleJsonData = document.getElementById('scheduleJsonData').textContent;
+            const itineraryContainer = document.getElementById('itineraryContainer');
+
+            // JavaScript로 직접 파싱
+            loadItineraryData();
+
+            function loadItineraryData() {
+                try {
+                    // 로딩 스피너 표시
+                    itineraryContainer.innerHTML = `
+                        <div class="loading-spinner">
+                            <i class="fas fa-spinner"></i>
+                        </div>
+                    `;
+
+                    console.log("JSON 데이터:", scheduleJsonData);
+
+                    // JavaScript로 직접 파싱
+                    try {
+                        const parsedData = JSON.parse(scheduleJsonData);
+                        console.log("파싱된 데이터:", parsedData);
+
+                        let itineraryData;
+
+                        // 데이터 구조 확인 및 변환
+                        if (parsedData.days && parsedData.days.length > 0) {
+                            // 이미 days 구조가 있는 경우
+                            itineraryData = parsedData;
+                        } else if (parsedData.travelPlan && parsedData.travelPlan.itinerary) {
+                            // travelPlan.itinerary 구조를 days 구조로 변환
+                            itineraryData = {
+                                days: parsedData.travelPlan.itinerary.map(day => {
+                                    return {
+                                        date: day.date,
+                                        schedules: day.schedule.map(item => {
+                                            return {
+                                                time: item.departureTime,
+                                                content: `${item.category} - ${item.location} (${item.duration}, ${item.cost})`
+                                            };
+                                        })
+                                    };
+                                })
+                            };
+                            console.log("변환된 데이터:", itineraryData);
+                        } else {
+                            throw new Error("지원되지 않는 데이터 형식입니다.");
+                        }
+
+                        // 로딩 효과를 위한 약간의 지연
+                        setTimeout(() => {
+                            // 로딩 스피너 제거
+                            itineraryContainer.innerHTML = '';
+
+                            if (!itineraryData || !itineraryData.days || itineraryData.days.length === 0) {
+                                itineraryContainer.innerHTML = `
+                                    <div class="empty-itinerary">
+                                        <i class="fas fa-calendar-times"></i>
+                                        <p>일정 데이터가 없습니다.</p>
+                                    </div>
+                                `;
+                                return;
+                            }
+
+                            // 각 날짜별 일정 렌더링
+                            itineraryData.days.forEach((day, index) => {
+                                const dayElement = createDayElement(day, index + 1);
+                                itineraryContainer.appendChild(dayElement);
+                            });
+                        }, 500);
+                    } catch (parseError) {
+                        console.error('JSON 파싱 오류:', parseError);
+                        itineraryContainer.innerHTML = `
+                            <div class="error-message">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <p>일정 데이터를 불러오는 중 오류가 발생했습니다.</p>
+                                <p>${parseError.message}</p>
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    console.error('일정 데이터 로드 오류:', error);
+                    itineraryContainer.innerHTML = `
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>일정 데이터를 불러오는 중 오류가 발생했습니다.</p>
+                            <p>${error.message}</p>
+                        </div>
+                    `;
+                }
+            }
+
+            // 날짜 요소 생성 함수
+            function createDayElement(day, dayNumber) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'day-container';
+
+                // 날짜 헤더
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'day-header';
+                dayHeader.innerHTML = `
+                    <h3 class="day-title">Day ${dayNumber} <span class="day-date">${day.date}</span></h3>
+                `;
+                dayElement.appendChild(dayHeader);
+
+                // 일정 컨테이너
+                const scheduleContainer = document.createElement('div');
+                scheduleContainer.className = 'schedule-container';
+
+                // 각 일정 항목 추가
+                day.schedules.forEach(schedule => {
+                    const scheduleItem = createScheduleElement(schedule);
+                    scheduleContainer.appendChild(scheduleItem);
+                });
+
+                dayElement.appendChild(scheduleContainer);
+                return dayElement;
+            }
+
+            // 일정 요소 생성 함수
+            function createScheduleElement(schedule) {
+                const scheduleElement = document.createElement('div');
+                scheduleElement.className = 'schedule-item';
+
+                // 시간
+                const timeElement = document.createElement('div');
+                timeElement.className = 'schedule-time';
+                timeElement.innerHTML = `<span>${schedule.time || '00:00'}</span>`;
+
+                // 내용
+                const contentElement = document.createElement('div');
+                contentElement.className = 'schedule-content';
+                contentElement.innerHTML = `<p>${schedule.content || ''}</p>`;
+
+                // 추가 정보가 있는 경우
+                if (schedule.location || schedule.cost || schedule.duration || schedule.category) {
+                    const detailsElement = document.createElement('div');
+                    detailsElement.className = 'schedule-details';
+
+                    let detailsHTML = '';
+
+                    if (schedule.location) {
+                        detailsHTML += `<div class="detail-item"><i class="fas fa-map-marker-alt"></i> ${schedule.location}</div>`;
+                    }
+
+                    if (schedule.duration) {
+                        detailsHTML += `<div class="detail-item"><i class="fas fa-clock"></i> ${schedule.duration}</div>`;
+                    }
+
+                    if (schedule.cost) {
+                        detailsHTML += `<div class="detail-item"><i class="fas fa-won-sign"></i> ${schedule.cost}</div>`;
+                    }
+
+                    if (schedule.category) {
+                        detailsHTML += `<div class="detail-item"><i class="fas fa-tag"></i> ${schedule.category}</div>`;
+                    }
+
+                    detailsElement.innerHTML = detailsHTML;
+                    contentElement.appendChild(detailsElement);
+                }
+
+                scheduleElement.appendChild(timeElement);
+                scheduleElement.appendChild(contentElement);
+
+                return scheduleElement;
+            }
+        });
+    </script>
+</body>
+
+</html>

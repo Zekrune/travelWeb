@@ -1,0 +1,378 @@
+/* 헤더 및 네비게이션 스타일 */
+header {
+    background-color: var(--secondary-color);
+    box-shadow: var(--shadow);
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+}
+
+.nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 70px;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--busan-color);
+    letter-spacing: 0.5px;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.logo:hover {
+    color: var(--busan-dark);
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.nav-item {
+    font-weight: 500;
+    position: relative;
+    padding: 25px 0;
+    font-size: 15px;
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+.nav-item::after {
+    content: '';
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--busan-color);
+    transition: var(--transition);
+}
+
+.nav-item:hover::after,
+.nav-item.active::after {
+    width: 100%;
+}
+
+.nav-item:hover {
+    color: var(--busan-color);
+}
+
+/* 사용자 메뉴 스타일 */
+.user-menu {
+    position: relative;
+}
+
+.user-icon {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 15px;
+    border-radius: 20px;
+    background-color: var(--busan-light);
+    color: var(--busan-dark);
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.user-icon:hover {
+    background-color: var(--busan-color);
+    color: white;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: var(--secondary-color);
+    box-shadow: var(--shadow);
+    border-radius: 12px;
+    min-width: 200px;
+    display: none;
+    z-index: 1000;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-color);
+    transition: var(--transition);
+}
+
+.dropdown-menu a:last-child {
+    border-bottom: none;
+}
+
+.dropdown-menu a:hover {
+    background-color: var(--primary-light);
+    color: var(--primary-dark);
+    padding-left: 25px;
+}
+
+/* 알림 메뉴 스타일 */
+.notification-menu {
+    position: relative;
+}
+
+.notification-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--busan-light);
+    color: var(--busan-dark);
+    position: relative;
+    transition: var(--transition);
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.notification-icon:hover {
+    background-color: var(--busan-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.notification-icon:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 128, 198, 0.3);
+}
+
+.notification-icon.active {
+    background-color: var(--busan-color);
+    color: white;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--busan-accent);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.notification-dropdown {
+    position: absolute;
+    top: 100%;
+    right: -100px;
+    background-color: var(--secondary-color);
+    box-shadow: var(--shadow);
+    border-radius: 12px;
+    width: 320px;
+    max-height: 400px;
+    display: none;
+    z-index: 1000;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.notification-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0;
+}
+
+.mark-all-read {
+    font-size: 12px;
+    color: var(--busan-color);
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.mark-all-read:hover {
+    color: var(--busan-dark);
+    text-decoration: underline;
+}
+
+.empty-notifications {
+    padding: 30px 20px;
+    text-align: center;
+    color: var(--text-light);
+}
+
+.notification-items {
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+    transition: var(--transition);
+    position: relative;
+}
+
+.notification-item:hover {
+    background-color: var(--busan-light);
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item .notification-icon {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    margin-right: 15px;
+    background-color: var(--busan-light);
+}
+
+.notification-item .notification-icon.info {
+    background-color: var(--busan-light);
+    color: var(--busan-color);
+}
+
+.notification-item .notification-icon.warning {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.notification-item .notification-icon.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-content p {
+    font-size: 13px;
+    margin: 0 0 5px;
+    color: var(--text-color);
+}
+
+.notification-time {
+    font-size: 11px;
+    color: var(--text-light);
+}
+
+.notification-dismiss {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 5px;
+    margin-left: 10px;
+    opacity: 0.5;
+    transition: var(--transition);
+}
+
+.notification-dismiss:hover {
+    opacity: 1;
+    color: var(--busan-accent);
+}
+
+.notification-footer {
+    padding: 12px 20px;
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+}
+
+.notification-footer a {
+    font-size: 13px;
+    color: var(--busan-color);
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.notification-footer a:hover {
+    color: var(--busan-dark);
+    text-decoration: underline;
+}
+
+/* 표준 네비게이션 바 스타일 */
+.standard-navbar {
+    background-color: var(--secondary-color);
+    box-shadow: var(--shadow);
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+}
+
+/* 반응형 스타일 */
+@media (max-width: 768px) {
+    .nav-container {
+        padding: 0 20px;
+    }
+
+    .nav-links {
+        gap: 15px;
+    }
+
+    .notification-dropdown {
+        width: 280px;
+        right: -70px;
+    }
+}
+
+@media (max-width: 576px) {
+    .nav-container {
+        flex-direction: column;
+        height: auto;
+        padding: 15px;
+    }
+
+    .logo {
+        margin-bottom: 10px;
+    }
+
+    .nav-links {
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .nav-item {
+        padding: 10px 0;
+    }
+
+    .nav-item::after {
+        bottom: 5px;
+    }
+
+    .notification-dropdown {
+        width: 260px;
+        right: -50px;
+    }
+}

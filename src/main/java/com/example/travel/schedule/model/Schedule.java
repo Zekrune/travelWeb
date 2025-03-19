@@ -1,0 +1,82 @@
+package com.example.travel.schedule.model;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
+
+@Data
+@Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "schedule")
+public class Schedule {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String userId; // 작성자
+
+    @NotBlank(message = "출발지는 필수 입력 항목입니다")
+    @Column(nullable = false)
+    private String departLocation;
+
+    @NotBlank(message = "출발 날짜는 필수 입력 항목입니다")
+    @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "날짜 형식은 YYYY-MM-DD여야 합니다")
+    @Column(nullable = false)
+    private String startDate;
+
+    @NotBlank(message = "종료 날짜는 필수 입력 항목입니다")
+    @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "날짜 형식은 YYYY-MM-DD여야 합니다")
+    @Column(nullable = false)
+    private String endDate;
+
+    @NotBlank(message = "교통 수단을 선택해주세요")
+    @Column(nullable = false)
+    private String transportation;
+
+    @NotBlank(message = "목적지는 필수 입력 항목입니다")
+    @Column(nullable = false)
+    private String destination;
+
+    @NotBlank(message = "여행 목적을 선택해주세요")
+    @Column(nullable = false)
+    private String purpose;
+
+    @Min(value = 0, message = "예산은 0 이상이어야 합니다")
+    @Column(nullable = false)
+    private int budget;
+
+    private String density;
+    private String hotelLocation;
+    private String travelMode;
+
+    // 최종 편집된 일정(JSON)
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private String scheduleJson;
+
+    // 모달에서 입력받은 정보들
+    @NotBlank(message = "여행 이름은 필수 입력 항목입니다")
+    @Column(nullable = false)
+    private String planName; // 최종 여행 이름
+
+    private String planPhoto; // 사진 URL
+    private String planDescription; // 여행 설명
+
+    // 생성 시각
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    public void onPrePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
+}

@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>부산 전체 관광 명소</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+
+        :root {
+            --primary-color: #1e88e5;
+            --secondary-color: #f5f5f5;
+            --accent-color: #ff6d00;
+            --text-color: #333;
+            --light-text: #666;
+            --white: #fff;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            --radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8f9fa;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .header-title::after {
+            content: "";
+            position: absolute;
+            width: 60px;
+            height: 4px;
+            background-color: var(--accent-color);
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .header-desc {
+            font-size: 1.1rem;
+            color: var(--light-text);
+            max-width: 600px;
+            margin: 1.5rem auto 0;
+        }
+
+        .filter-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.8rem;
+            border: 1px solid #ddd;
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.2);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+
+        .sort-options select {
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: var(--radius);
+            background-color: var(--white);
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            height: 340px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .card-img {
+            position: relative;
+            height: 180px;
+            overflow: hidden;
+        }
+
+        .card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .card:hover img {
+            transform: scale(1.1);
+        }
+
+        .card-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: var(--accent-color);
+            color: var(--white);
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            z-index: 2;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .card-excerpt {
+            font-size: 0.9rem;
+            color: var(--light-text);
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            border-top: 1px solid #eee;
+            padding-top: 1rem;
+        }
+
+        .card-author {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .author-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #e3f2fd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--primary-color);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .author-name {
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        .card-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .rating-stars {
+            color: #ffc107;
+            font-size: 0.9rem;
+        }
+
+        .rating-count {
+            font-size: 0.85rem;
+            color: var(--light-text);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 3rem;
+            gap: 0.5rem;
+        }
+
+        .pagination-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 40px;
+            height: 40px;
+            border: 1px solid #ddd;
+            border-radius: 50%;
+            background-color: var(--white);
+            color: var(--text-color);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .pagination-button.active {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border-color: var(--primary-color);
+        }
+
+        .pagination-button:hover:not(.active) {
+            background-color: #f0f0f0;
+        }
+
+        .pagination-arrow {
+            background-color: transparent;
+            border: none;
+            color: var(--light-text);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .pagination-arrow:hover {
+            color: var(--primary-color);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #eee;
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .header-title {
+                font-size: 2rem;
+            }
+
+            .filter-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                max-width: 100%;
+            }
+
+            .cards {
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                gap: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .pagination {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1 class="header-title">부산 관광 명소</h1>
+            <p class="header-desc">부산의 아름다운 관광지와 숨겨진 명소들을 여행자들의 솔직한 리뷰로 만나보세요.</p>
+        </div>
+
+        <div class="filter-container">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="관광지 검색...">
+            </div>
+            <div class="sort-options">
+                <select>
+                    <option value="recent">최신순</option>
+                    <option value="rating">별점 높은순</option>
+                    <option value="popular">인기순</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="cards">
+            <!-- 카드 1 -->
+            <div class="card">
+                <div class="card-img">
+                    <span class="card-badge">추천</span>
+                    <img src="/api/placeholder/400/320" alt="해운대 해수욕장">
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">해운대 해수욕장</h3>
+                    <p class="card-excerpt">부산의 상징과도 같은 해운대 해수욕장은 넓고 깨끗한 백사장과 아름다운 해안선이 인상적입니다.</p>
+                    <div class="card-meta">
+                        <div class="card-author">
+                            <div class="author-avatar">김</div>
+                            <span class="author-name">김여행</span>
+                        </div>
+                        <div class="card-rating">
+                            <div class="rating-stars">★★★★★</div>
+                            <span class="rating-count">(28)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 카드 2 -->
+            <div class="card">
+                <div class="card-img">
+                    <img src="/api/placeholder/400/320" alt="감천문화마을">
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">감천문화마을</h3>
+                    <p class="card-excerpt">알록달록한 집들이 산비탈에 모여 있는 모습이 예쁜 감천문화마을은 인생샷 명소로 유명합니다.</p>
+                    <div class="card-meta">
+                        <div class="card-author">
+                            <div class="author-avatar">이</div>
+                            <span class="author-name">이포토</span>
+                        </div>
+                        <div class="card-rating">
+                            <div class="rating-stars">★★★★☆</div>
+                            <span class="rating-count">(19)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 카드 3 -->
+            <div class="card">
+                <div class="card-img">
+                    <img src="/api/placeholder/400/320" alt="광안리 해수욕장">
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">광안리 해수욕장</h3>
+                    <p class="card-excerpt">밤에 더 아름다운 광안리 해수욕장. 광안대교의 야경과 함께 즐기는 해변 산책이 일품입니다.</p>
+                    <div class="card-meta">
+                        <div class="card-author">
+                            <div class="author-avatar">박</div>
+                            <span class="author-name">박나이트</span>
+                        </div>
+                        <div class="card-rating">
+                            <div class="rating-stars">★★★★★</div>
+                            <span class="rating-count">(32)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 카드 4 -->
+            <div class="card">
+                <div class="card-img">
+                    <span class="card-badge">신규</span>
+                    <img src="/api/placeholder/400/320" alt="태종대">
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">태종대</h3>
+                    <p class="card-excerpt">절벽 위에서 바라보는 푸른 바다가 장관인 태종대. 맑은 날에는 일본 대마도까지 보인다고 합니다.</p>
+                    <div class="card-meta">
+                        <div class="card-author">
+                            <div class="author-avatar">최</div>
+                            <span class="author-name">최탐험</span>
+                        </div>
+                        <div class="card-rating">
+                            <div class="rating-stars">★★★★☆</div>
+                            <span class="rating-count">(15)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 카드 5 -->
+            <div class="card">
+                <div class="card-img">
+                    <img src="/api/placeholder/400/320" alt="송정 해수욕장">
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">송정 해수욕장</h3>
+                    <p class="card-excerpt">서핑의 성지로 알려진 송정 해수욕장. 초보자부터 전문가까지 즐길 수 있는 파도가 매력적입니다.</p>
+                    <div class="card-meta">
+                        <div class="card-author">
+                            <div class="author-avatar">정</div>
+                            <span class="author-name">정서퍼</span>
+                        </div>
+                        <div class="card-rating">
+                            <div class="rating-stars">★★★★☆</div>
+                            <span class="rating-count">(21)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 카드 6 -->
+            <div class="card">
+                <div class="card-img">
+                    <img src="/api/placeholder/400/320" alt="자갈치 시장">
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">자갈치 시장</h3>
+                    <p class="card-excerpt">부산 대표 수산시장인 자갈치. 방금 잡은 신선한 해산물과 현지인들의 활기찬 모습이 인상적입니다.</p>
+                    <div class="card-meta">
+                        <div class="card-author">
+                            <div class="author-avatar">강</div>
+                            <span class="author-name">강맛집</span>
+                        </div>
+                        <div class="card-rating">
+                            <div class="rating-stars">★★★★★</div>
+                            <span class="rating-count">(35)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 카드 7 -->
+            <div class="card">
+                <div class="card-img">
+                    <span class="card-badge">인기</span>
+                    <img src="/api/placeholder/400/320" alt="흰여울 문화마을">
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">흰여울 문화마을</h3>
+                    <p class="card-excerpt">아기자기한 골목길과 바다가 어우러진 숨겨진 명소. 사진작가들에게 사랑받는 포토스팟입니다.</p>
+                    <div class="card-meta">
+                        <div class="card-author">
+                            <div class="author-avatar">조</div>
+                            <span class="author-name">조포토</span>
+                        </div>
+                        <div class="card-rating">
+                            <div class="rating-stars">★★★★★</div>
+                            <span class="rating-count">(29)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 카드 8 -->
+            <div class="card">
+                <div class="card-img">
+                    <img src="/api/placeholder/400/320" alt="부산타워">
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">부산타워</h3>
+                    <p class="card-excerpt">용두산 공원 내에 위치한 부산타워에서는 부산 시내와 항구의 환상적인 전망을 감상할 수 있습니다.</p>
+                    <div class="card-meta">
+                        <div class="card-author">
+                            <div class="author-avatar">윤</div>
+                            <span class="author-name">윤뷰티풀</span>
+                        </div>
+                        <div class="card-rating">
+                            <div class="rating-stars">★★★★☆</div>
+                            <span class="rating-count">(18)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 카드 9 -->
+            <div class="card">
+                <div class="card-img">
+                    <img src="/api/placeholder/400/320" alt="국제시장">
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">국제시장</h3>
+                    <p class="card-excerpt">부산의 역사가 담긴 국제시장. 다양한 먹거리와 볼거리가 가득한 전통시장입니다.</p>
+                    <div class="card-meta">
+                        <div class="card-author">
+                            <div class="author-avatar">임</div>
+                            <span class="author-name">임역사</span>
+                        </div>
+                        <div class="card-rating">
+                            <div class="rating-stars">★★★★☆</div>
+                            <span class="rating-count">(25)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 카드 10 -->
+            <div class="card">
+                <div class="card-img">
+                    <img src="/api/placeholder/400/320" alt="청사포">
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">청사포</h3>
+                    <p class="card-excerpt">해운대와 송정 사이에 위치한 숨겨진 해안 명소. 달맞이길의 절경이 일품입니다.</p>
+                    <div class="card-meta">
+                        <div class="card-author">
+                            <div class="author-avatar">한</div>
+                            <span class="author-name">한달빛</span>
+                        </div>
+                        <div class="card-rating">
+                            <div class="rating-stars">★★★★☆</div>
+                            <span class="rating-count">(14)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 카드 11 -->
+            <div class="card">
+                <div class="card-img">
+                    <img src="/api/placeholder/400/320" alt="오륙도 스카이워크">
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">오륙도 스카이워크</h3>
+                    <p class="card-excerpt">투명한 바닥을 통해 아래 바다를 내려다볼 수 있는 스릴 만점의 관광 명소입니다.</p>
+                    <div class="card-meta">
+                        <div class="card-author">
+                            <div class="author-avatar">서</div>
+                            <span class="author-name">서스릴</span>
+                        </div>
+                        <div class="card-rating">
+                            <div class="rating-stars">★★★★★</div>
+                            <span class="rating-count">(31)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 카드 12 -->
+            <div class="card">
+                <div class="card-img">
+                    <span class="card-badge">숨은명소</span>
+                    <img src="/api/placeholder/400/320" alt="두미도">
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">두미도</h3>
+                    <p class="card-excerpt">관광객들에게 잘 알려지지 않은 숨겨진 보석 같은 섬. 맑은 물과 조용한 해변이 매력입니다.</p>
+                    <div class="card-meta">
+                        <div class="card-author">
+                            <div class="author-avatar">이</div>
+                            <span class="author-name">이탐험가</span>
+                        </div>
+                        <div class="card-rating">
+                            <div class="rating-stars">★★★★★</div>
+                            <span class="rating-count">(12)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pagination">
+            <button class="pagination-arrow"><i class="fas fa-chevron-left"></i></button>
+            <button class="pagination-button active">1</button>
+            <button class="pagination-button">2</button>
+            <button class="pagination-button">3</button>
+            <button class="pagination-button">4</button>
+            <button class="pagination-button">5</button>
+            <button class="pagination-arrow"><i class="fas fa-chevron-right"></i></button>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 부산 관광 명소 리뷰 | 리뷰어들의 솔직한 경험담</p>
+        </div>
+    </div>
+</body>
+
+</html>
