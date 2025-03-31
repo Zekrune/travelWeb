@@ -7,17 +7,28 @@
 /* 관광 명소 컨테이너 스타일 */
 .attractions-container {
     max-width: 1200px;
-    margin: 0 auto;
-    padding: 30px 20px;
+    margin: 30px auto;
+    padding: 0 20px;
 }
 
+.main-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem;
+    text-align: center;
+}
 /* 메인 타이틀 스타일 */
 .main-title {
-    text-align: center;
-    font-size: 32px;
-    font-weight: 700;
-    margin-bottom: 40px;
-    color: var(--text-color);
+    font-size: 2.2rem;
+    color: black;
+    margin-bottom: 0.5rem;
+}
+
+.main-description {
+    color: var(--light-text);
+    margin-bottom: 1.5rem;
+    max-width: 600px;
 }
 
 /* 검색 폼 스타일 */

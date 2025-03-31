@@ -7,6 +7,9 @@ function showEventModal(event, calendar) {
 
   console.log("수정 요청 ID:", event.id);
 
+  // 이벤트 ID를 폼에 설정 - 이 부분이 누락되어 있음!!!
+  document.getElementById("eventId").value = event.id;
+
   // 이벤트 카테고리 가져오기 (없으면 기본값 1)
   const category = event.extendedProps.category || 1;
 
@@ -74,58 +77,77 @@ function showEventModal(event, calendar) {
 
   // 저장 버튼 클릭 시 서버로 업데이트 요청
   document.getElementById("saveEvent").onclick = function () {
-    const newTitle = document.getElementById("eventTitle").value;
-    const newDescription = document.getElementById("eventDescription").value;
-    const newCategory = document.getElementById("eventCategory")
-      ? parseInt(document.getElementById("eventCategory").value)
-      : category;
+    const eventId = document.getElementById("eventId").value;
+    const eventTitle = document.getElementById("eventTitle").value;
+    const eventDescription = document.getElementById("eventDescription").value;
 
-    if (!newTitle.trim()) {
-      showToast("여행 이름을 입력해주세요.", "warning");
+    // 카테고리 값 가져오는 부분 수정
+    let categoryValue = 1; // 기본값
+    const selectedCategory = document.querySelector(
+      'input[name="eventCategory"]:checked'
+    );
+    if (selectedCategory) {
+      categoryValue = selectedCategory.value;
+    } else if (document.getElementById("eventCategory")) {
+      // select 요소인 경우
+      categoryValue = document.getElementById("eventCategory").value;
+    }
+
+    console.log(
+      "저장 요청:",
+      eventId,
+      eventTitle,
+      eventDescription,
+      categoryValue
+    );
+
+    // 이벤트 ID가 없으면 오류 메시지 표시
+    if (!eventId) {
+      showToast("일정 ID가 없어 수정할 수 없습니다.", "error");
       return;
     }
 
-    console.log("수정 요청 데이터: ", {
-      planName: newTitle,
-      planDescription: newDescription,
-      category: newCategory,
-    });
-
-    fetch(`/api/events/${event.id}`, {
+    // 저장 요청 전송
+    fetch(`/api/events/${eventId}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
-        planName: newTitle,
-        planDescription: newDescription,
-        category: newCategory,
+        planName: eventTitle,
+        planDescription: eventDescription,
+        category: categoryValue,
       }),
     })
       .then((response) => {
         if (!response.ok) {
-          console.error("서버 응답 오류:", response);
-          throw new Error("서버 응답 실패");
+          throw new Error("일정 수정 중 오류가 발생했습니다");
         }
         return response.json();
       })
-      .then((updatedEvent) => {
-        console.log("DB 업데이트 완료:", updatedEvent);
+      .then((data) => {
+        console.log("일정 수정 성공:", data);
 
-        // 이벤트 속성 업데이트
-        event.setProp("title", newTitle);
-        event.setExtendedProp("description", newDescription);
-        event.setExtendedProp("category", newCategory);
+        // 캘린더 이벤트 업데이트
+        const updatedEvent = calendar.getEventById(eventId);
+        if (updatedEvent) {
+          updatedEvent.setProp("title", eventTitle);
+          updatedEvent.setExtendedProp("description", eventDescription);
 
-        // 이벤트 색상 클래스 업데이트
-        event.setProp("classNames", [`event-category-${newCategory}`]);
+          // 카테고리 변경 시 클래스 업데이트
+          const newClassName = `event-category-${categoryValue}`;
+          updatedEvent.setProp("classNames", [newClassName]);
+        }
 
+        // 모달 닫기
         closeModal("eventModal");
 
         // 성공 메시지 표시
-        showToast("일정이 성공적으로 수정되었습니다.");
+        showToast("일정이 성공적으로 수정되었습니다", "success");
       })
       .catch((error) => {
-        showToast("일정 수정 실패: " + error.message, "error");
-        console.error("일정 수정 오류:", error);
+        console.error("일정 수정 실패:", error);
+        showToast("일정 수정 중 오류가 발생했습니다", "error");
       });
   };
 
@@ -218,13 +240,28 @@ function closeModal(modalId) {
 
 // 일정 불러오기
 function loadEvents(calendar) {
+  console.log(
+    "📌 일정 불러오기 시작 - 캘린더에 현재 로그인한 사용자의 일정만 표시됩니다"
+  );
+
   fetch("/api/events")
     .then((response) => response.json())
     .then((events) => {
-      console.log("✅ 불러온 일정 데이터:", events);
+      console.log(
+        `✅ 불러온 일정 데이터: 총 ${events.length}개의 일정이 로드되었습니다`
+      );
+
+      // events가 배열인지 확인하고, 배열이 아니면 빈 배열로 처리
+      if (!Array.isArray(events)) {
+        console.warn(
+          "⚠️ 서버에서 반환된 일정 데이터가 배열이 아닙니다:",
+          events
+        );
+        events = [];
+      }
 
       events.forEach((event) => {
-        console.log("🛠 캘린더에 추가할 일정:", event);
+        console.log(`🛠 캘린더에 추가할 일정: ${event.id} - ${event.title}`);
 
         // 서버에서 저장된 카테고리 사용 (없으면 기본값 1)
         const categoryNum = event.category || 1;
@@ -245,9 +282,20 @@ function loadEvents(calendar) {
 
       // 다가오는 여행 정보 업데이트
       updateUpcomingTrips(events);
+
+      // 일정이 없는 경우 메시지 표시 (첫 사용자용)
+      if (events.length === 0) {
+        console.log(
+          "📅 일정이 없습니다. 로그인 상태와 사용자 권한을 확인하세요."
+        );
+        // 일정이 없을 때는 오류가 아니므로 일반 정보 메시지 표시
+        showToast("등록된 일정이 없습니다. 새 일정을 추가해보세요.", "info");
+      }
     })
     .catch((error) => {
       console.error("❌ 일정 불러오기 실패: ", error);
+      // 에러 발생 시 빈 배열로 다가오는 여행 정보 초기화
+      updateUpcomingTrips([]);
       showToast("일정을 불러오는 중 오류가 발생했습니다.", "error");
     });
 }
@@ -292,7 +340,7 @@ function updateUpcomingTrips(events) {
       tripsContainer.innerHTML = `
           <div class="empty-trips">
             <p>예정된 여행이 없습니다</p>
-            <a href="/itineraries/createItinerary" class="create-trip-btn">새 여행 계획하기</a>
+            <a href="/itineraries/itineraryCreate" class="create-trip-btn">새 여행 계획하기</a>
           </div>
         `;
     } else {

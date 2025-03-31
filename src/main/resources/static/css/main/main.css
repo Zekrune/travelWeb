@@ -249,33 +249,99 @@ textarea:focus {
 .create-trip-btn {
     display: inline-block;
     margin-top: 15px;
-    padding: 12px 24px;
-    background-color: var(--busan-light);
-    color: var(--busan-dark);
-    border-radius: 30px;
-    font-weight: 600;
+    padding: 10px 20px;
+    background-color: var(--busan-color);
+    color: white;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
     transition: all 0.3s ease;
 }
 
 .create-trip-btn:hover {
-    background-color: var(--busan-color);
-    color: white;
-    transform: translateY(-3px);
+    background-color: var(--busan-dark);
+    transform: translateY(-2px);
+}
+
+/* 종료된 여행 리스트 스타일 */
+.completed-trips {
+    background-color: var(--secondary-color);
+    border-radius: 16px;
     box-shadow: var(--shadow);
+    padding: 25px;
+    transition: all 0.3s ease;
+    margin-top: 30px;
+}
+
+.completed-trips:hover {
+    box-shadow: var(--hover-shadow);
+    transform: translateY(-5px);
+}
+
+.completed-trips h3 {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.completed-trips h3 i {
+    color: var(--accent-color);
+}
+
+.has-review {
+    color: #4CAF50 !important;
+    font-weight: 500 !important;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.has-review i {
+    color: #4CAF50;
+    font-size: 16px;
+}
+
+.no-review {
+    color: var(--accent-color) !important;
+    font-weight: 600 !important;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    animation: pulse 2s infinite;
+}
+
+.no-review i {
+    color: var(--accent-color);
+    font-size: 16px;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+    100% {
+        opacity: 1;
+    }
 }
 
 .trip-cards {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
 }
 
 .trip-card {
-    display: flex;
-    align-items: center;
     background-color: var(--background-color);
     border-radius: 12px;
-    padding: 15px;
+    padding: 20px 22px;
+    display: flex;
+    align-items: center;
     transition: all 0.3s ease;
     position: relative;
 }
@@ -287,33 +353,32 @@ textarea:focus {
 }
 
 .trip-date {
-    width: 60px;
-    height: 60px;
+    width: 65px;
+    height: 65px;
     border-radius: 12px;
-    background: var(--busan-gradient);
-    color: white;
+    background-color: var(--busan-color);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-right: 15px;
-    box-shadow: 0 4px 10px rgba(0, 128, 198, 0.2);
+    margin-right: 18px;
+    color: white;
 }
 
 .date-number {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 700;
     line-height: 1;
-    font-family: 'Poppins', sans-serif;
+    margin-bottom: 3px;
 }
 
 .date-month {
     font-size: 12px;
-    margin-top: 3px;
+    text-transform: uppercase;
 }
 
 .trip-info {
-    flex: 1;
+    flex-grow: 1;
 }
 
 .trip-info h4 {
@@ -323,32 +388,31 @@ textarea:focus {
 }
 
 .trip-info p {
-    font-size: 13px;
+    font-size: 14px;
     color: var(--text-light);
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 8px;
     margin-bottom: 3px;
 }
 
 .trip-view-btn {
     width: 36px;
     height: 36px;
-    border-radius: 50%;
-    background-color: white;
+    border-radius: 10px;
+    background-color: var(--busan-light);
     color: var(--busan-color);
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
 }
 
 .trip-view-btn:hover {
     background-color: var(--busan-color);
     color: white;
     transform: translateX(3px);
-    box-shadow: 0 4px 10px rgba(0, 128, 198, 0.2);
 }
 
 /* 추천 여행 정보 스타일 */
@@ -646,11 +710,15 @@ textarea:focus {
 
 /* 환영 배너 스타일 */
 .welcome-banner {
-    width: 100%;
+    width: 92%;
+    margin: 0 auto;
+    align-items: center;
     height: 600px;
     position: relative;
     overflow: hidden;
+    margin-top: 25px;
     margin-bottom: 40px;
+    border-radius: 10px;
 }
 
 .banner-slider {
@@ -684,7 +752,7 @@ textarea:focus {
 }
 
 .banner-slide:nth-child(3) {
-    background-image: url('/img/main/white.jpeg');
+    background-image: url('/img/main/songdo.png');
 }
 
 .banner-slide:nth-child(4) {
@@ -839,6 +907,8 @@ textarea:focus {
 
     .side-panel {
         width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
     }
 
     .stats-grid {

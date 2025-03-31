@@ -1,8 +1,7 @@
 package com.example.travel.calendar.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import com.example.travel.calendar.model.Calendar;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 

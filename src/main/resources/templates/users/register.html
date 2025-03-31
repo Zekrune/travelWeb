@@ -5,23 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ワクワク: 회원가입</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
-        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/css/main/main.css}">
     <link rel="stylesheet" th:href="@{/css/users/register.css}">
-    <link rel="stylesheet" th:href="@{/css/main/nav.css}">
+
     <!-- reCAPTCHA 스크립트 주석 해제 -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 
 <body>
-    <div th:replace="~{nav :: navbar}"></div>
 
     <div class="register-container">
         <div class="register-card">
             <div class="register-header">
                 <div class="logo-area">
+                    <div class="register-logo">ワクワク</div>
                     <h1>회원가입</h1>
                     <p>간단한 정보 입력으로 부산 여행 서비스를 이용하세요</p>
                 </div>
@@ -121,12 +118,20 @@
                         <div id="recaptchaResponse-error" class="validation-message"></div>
                     </div>
 
-                    <button type="button" class="register-btn" onclick="submitForm()">회원가입 완료하기</button>
+                    <button type="button" class="register-btn" onclick="submitForm()">가입하기</button>
 
                     <div class="login-link-container">
                         <p>이미 계정이 있으신가요? <a href="/users/login" class="login-link">로그인하기</a></p>
                     </div>
                 </form>
+            </div>
+
+            <!-- 정책 링크 추가 -->
+            <div class="policy-links">
+                <a href="#">이용약관</a>
+                <a href="#">개인정보처리방침</a>
+                <a href="#">책임의 한계와 법적고지</a>
+                <a href="#">회원정보 고객센터</a>
             </div>
         </div>
     </div>
@@ -272,6 +277,29 @@
                     });
                 });
         }
+
+        // 약관 전체 동의 기능
+        function toggleAllTerms() {
+            const allCheckbox = document.getElementById('agreeAll');
+            const checkboxes = document.querySelectorAll('.terms-checkbox');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = allCheckbox.checked;
+            });
+        }
+
+        // 개별 약관 체크 시 전체 동의 체크박스 상태 업데이트
+        document.addEventListener('DOMContentLoaded', function() {
+            const allCheckbox = document.getElementById('agreeAll');
+            const checkboxes = document.querySelectorAll('.terms-checkbox');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const allChecked = Array.from(checkboxes).every(box => box.checked);
+                    allCheckbox.checked = allChecked;
+                });
+            });
+        });
     </script>
     <script th:src="@{/js/main/nav.js}"></script>
 </body>

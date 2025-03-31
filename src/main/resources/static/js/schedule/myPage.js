@@ -194,7 +194,7 @@ document.addEventListener("DOMContentLoaded", function () {
         <div class="no-plans">
           <i class="fas fa-calendar-times"></i>
           <p>아직 확정된 여행 일정이 없습니다.</p>
-          <a href="/itineraries/createItinerary" class="btn-create">새 여행 계획 만들기</a>
+          <a href="/itineraries/itineraryCreate" class="btn-create">새 여행 계획 만들기</a>
         </div>
       `;
       return;
@@ -231,67 +231,37 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    // 도시별로 그룹화
-    const citiesMap = new Map();
-
+    // 도시별로 그룹화하지 않고 각 여행을 개별 카드로 표시
     schedules.forEach((schedule) => {
-      if (!citiesMap.has(schedule.destination)) {
-        citiesMap.set(schedule.destination, []);
-      }
-      citiesMap.get(schedule.destination).push(schedule);
-    });
-
-    console.log("도시별 그룹화 완료:", citiesMap.size + "개 도시");
-
-    // 도시 카드 생성
-    citiesMap.forEach((citySchedules, cityName) => {
-      const cityCard = document.createElement("div");
-      cityCard.className = "city-card";
-
-      // 가장 최근 여행의 이미지와 ID 사용
-      const latestSchedule = citySchedules.sort(
-        (a, b) => new Date(b.endDate) - new Date(a.endDate)
-      )[0];
-
-      // 도시 카드 클릭 시 해당 도시의 가장 최근 여행 상세 페이지로 이동
-      cityCard.onclick = function() {
-        window.location = "/schedule/details/" + latestSchedule.id;
+      const tripCard = document.createElement("div");
+      tripCard.className = "history-card";
+      tripCard.setAttribute("data-date", schedule.startDate);
+      tripCard.setAttribute("data-end-date", schedule.endDate);
+      tripCard.onclick = function() {
+        window.location = "/schedule/details/" + schedule.id;
       };
-      
-      // 스타일에 커서 포인터 추가
-      cityCard.style.cursor = "pointer";
 
       const backgroundImage =
-        latestSchedule.planPhoto && latestSchedule.planPhoto !== ""
-          ? `background-image: url('${latestSchedule.planPhoto}')`
+        schedule.planPhoto && schedule.planPhoto !== ""
+          ? `background-image: url('${schedule.planPhoto}')`
           : `background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2073&auto=format&fit=crop')`;
 
-      cityCard.innerHTML = `
-        <div class="city-image" style="${backgroundImage}">
-          <div class="city-overlay">
-            <h3 class="city-name">${cityName}</h3>
-            <div class="visit-count">${citySchedules.length}회 방문</div>
+      tripCard.innerHTML = `
+        <div class="card-image" style="${backgroundImage}"></div>
+        <div class="card-content">
+          <div class="card-label">${schedule.purpose || "여행"}</div>
+          <h3 class="card-title">${schedule.planName}</h3>
+          <div class="card-details">
+            <span>출발: ${schedule.departLocation} | 목적지: ${schedule.destination}</span>
           </div>
-        </div>
-        <div class="city-details">
-          <div class="last-visit">마지막 방문: ${latestSchedule.endDate}</div>
-          <button class="view-trips-btn" data-city="${cityName}">여행 기록 보기</button>
+          <div class="card-date">
+            <i class="far fa-calendar-alt" style="margin-right: 5px;"></i>
+            <span>${schedule.startDate} ~ ${schedule.endDate}</span>
+          </div>
         </div>
       `;
 
-      container.appendChild(cityCard);
-    });
-
-    // 여행 기록 보기 버튼 이벤트 리스너
-    document.querySelectorAll(".view-trips-btn").forEach((button) => {
-      button.addEventListener("click", function (e) {
-        e.stopPropagation(); // 버튼 클릭 시 부모 요소의 클릭 이벤트가 발생하지 않도록 함
-        const cityName = this.getAttribute("data-city");
-        const citySchedules = citiesMap.get(cityName);
-
-        // 모달 생성 및 표시
-        showTripHistoryModal(cityName, citySchedules);
-      });
+      container.appendChild(tripCard);
     });
 
     console.log("히스토리 카드 렌더링 완료");

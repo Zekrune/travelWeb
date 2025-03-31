@@ -109,6 +109,29 @@ function convertToGridCoord(lat, lon) {
   return { nx, ny };
 }
 
+// 카카오맵 API 사용 전에 동적 로드 시도
+function loadKakaoMapAPI(callback) {
+  // 이미 로드되었는지 확인
+  if (typeof kakao !== "undefined" && kakao.maps) {
+    callback(true);
+    return;
+  }
+
+  // 스크립트 동적 로드
+  const script = document.createElement("script");
+  script.src =
+    "//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_API_KEY&libraries=services&autoload=false";
+  script.onload = function () {
+    kakao.maps.load(function () {
+      callback(true);
+    });
+  };
+  script.onerror = function () {
+    callback(false);
+  };
+  document.head.appendChild(script);
+}
+
 // 현재 위치 가져오기
 function getCurrentLocation() {
   const weatherInfo = document.getElementById("weather-info");
@@ -134,12 +157,16 @@ function getCurrentLocation() {
         // 기본 위치 (부산시청 좌표)로 대체
         const defaultLat = KMA_API_CONSTANTS.DEFAULT_LOCATION.LAT;
         const defaultLon = KMA_API_CONSTANTS.DEFAULT_LOCATION.LON;
-        
+
         // 기본 위치의 주소 정보 가져오기
         getAddressFromCoords(defaultLat, defaultLon, (address) => {
-          fetchWeatherData(defaultLat, defaultLon, address || "부산시청 (기본값)");
+          fetchWeatherData(
+            defaultLat,
+            defaultLon,
+            address || "부산시청 (기본값)"
+          );
         });
-        
+
         weatherInfo.innerHTML += `<small class="weather-notice">※ 위치 정보에 접근할 수 없어 부산시청 기준으로 표시합니다.</small>`;
       },
       // 옵션
@@ -154,12 +181,12 @@ function getCurrentLocation() {
     // 기본 위치 (부산시청 좌표)로 대체
     const defaultLat = KMA_API_CONSTANTS.DEFAULT_LOCATION.LAT;
     const defaultLon = KMA_API_CONSTANTS.DEFAULT_LOCATION.LON;
-    
+
     // 기본 위치의 주소 정보 가져오기
     getAddressFromCoords(defaultLat, defaultLon, (address) => {
       fetchWeatherData(defaultLat, defaultLon, address || "부산시청 (기본값)");
     });
-    
+
     weatherInfo.innerHTML += `<small class="weather-notice">※ 위치 정보 기능을 지원하지 않는 브라우저입니다. 부산시청 기준으로 표시합니다.</small>`;
   }
 }
@@ -167,52 +194,71 @@ function getCurrentLocation() {
 // 좌표를 주소로 변환하는 함수 (카카오맵 API 사용)
 function getAddressFromCoords(lat, lon, callback) {
   // 카카오맵 API가 로드되었는지 확인
-  if (typeof kakao === 'undefined' || !kakao.maps || !kakao.maps.services) {
-    console.error("카카오맵 API가 로드되지 않았습니다");
-    callback(null);
+  if (typeof kakao === "undefined" || !kakao.maps || !kakao.maps.services) {
+    // 콘솔 오류 메시지를 제거하고 간단한 로그만 남김
+    console.log(
+      "카카오맵 API를 사용할 수 없어 위치 정보 상세 변환을 건너뜁니다"
+    );
+
+    // 좌표 정보를 기반으로 간단한 위치 표시 (위도, 경도만 표시)
+    const simpleLocation = `부산 (${lat.toFixed(6)}, ${lon.toFixed(6)})`;
+    callback(simpleLocation);
     return;
   }
-  
-  // 좌표를 주소로 변환하는 객체 생성
-  const geocoder = new kakao.maps.services.Geocoder();
-  
-  // 좌표를 주소로 변환
-  geocoder.coord2Address(lon, lat, (result, status) => {
-    if (status === kakao.maps.services.Status.OK) {
-      // 도로명 주소 또는 지번 주소 가져오기
-      let addressDetail = "";
-      
-      if (result[0].road_address) {
-        // 도로명 주소가 있을 경우 (도로명 주소 우선 사용)
-        const roadAddress = result[0].road_address;
-        addressDetail = roadAddress.address_name;
-        
-        // 건물명이 있으면 추가
-        if (roadAddress.building_name) {
-          addressDetail += ` (${roadAddress.building_name})`;
+
+  // 카카오맵 API 로드 확인
+  loadKakaoMapAPI(function (isLoaded) {
+    if (isLoaded) {
+      // 카카오맵 API가 로드된 경우
+      // 좌표를 주소로 변환하는 객체 생성
+      const geocoder = new kakao.maps.services.Geocoder();
+
+      // 좌표를 주소로 변환
+      geocoder.coord2Address(lon, lat, (result, status) => {
+        if (status === kakao.maps.services.Status.OK) {
+          // 도로명 주소 또는 지번 주소 가져오기
+          let addressDetail = "";
+
+          if (result[0].road_address) {
+            // 도로명 주소가 있을 경우 (도로명 주소 우선 사용)
+            const roadAddress = result[0].road_address;
+            addressDetail = roadAddress.address_name;
+
+            // 건물명이 있으면 추가
+            if (roadAddress.building_name) {
+              addressDetail += ` (${roadAddress.building_name})`;
+            }
+          } else if (result[0].address) {
+            // 지번 주소만 있을 경우
+            const jibunAddress = result[0].address;
+            addressDetail = jibunAddress.address_name;
+          }
+
+          // 행정구역 정보 가져오기
+          if (addressDetail) {
+            callback(addressDetail);
+          } else {
+            callback(`부산 (${lat.toFixed(6)}, ${lon.toFixed(6)})`);
+          }
+        } else {
+          console.log("주소 변환 실패:", status);
+          callback(`부산 (${lat.toFixed(6)}, ${lon.toFixed(6)})`);
         }
-      } else if (result[0].address) {
-        // 지번 주소만 있을 경우
-        const jibunAddress = result[0].address;
-        addressDetail = jibunAddress.address_name;
-      }
-      
-      // 행정구역 정보 가져오기
-      if (addressDetail) {
-        callback(addressDetail);
-      } else {
-        callback(null);
+      });
+
+      // 행정구역 정보도 가져와 보다 상세한 정보 제공 (오류 발생 시 조용히 넘어가도록 try-catch 추가)
+      try {
+        geocoder.coord2RegionCode(lon, lat, (result, status) => {
+          if (status === kakao.maps.services.Status.OK) {
+            console.log("행정구역 정보:", result);
+          }
+        });
+      } catch (error) {
+        console.log("행정구역 정보 조회 중 오류 발생");
       }
     } else {
-      console.error("주소 변환 실패:", status);
-      callback(null);
-    }
-  });
-  
-  // 행정구역 정보도 가져와 보다 상세한 정보 제공
-  geocoder.coord2RegionCode(lon, lat, (result, status) => {
-    if (status === kakao.maps.services.Status.OK) {
-      console.log("행정구역 정보:", result);
+      // 로드 실패 시 기본 좌표 값 사용
+      callback(`부산 (${lat.toFixed(6)}, ${lon.toFixed(6)})`);
     }
   });
 }
@@ -365,7 +411,7 @@ function displayWeather(data, locationName) {
           }
         </div>
       </div>
-      
+
       <div class="weather-footer">
         <button id="refreshWeather" class="weather-refresh-btn">
           <i class="fas fa-sync-alt"></i> 새로고침

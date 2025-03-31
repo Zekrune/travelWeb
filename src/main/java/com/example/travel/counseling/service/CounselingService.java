@@ -3,6 +3,8 @@ package com.example.travel.counseling.service;
 import com.example.travel.counseling.model.Counseling;
 import com.example.travel.counseling.model.CounselingCategory;
 import com.example.travel.counseling.repository.CounselingRepository;
+import com.example.travel.user.model.User;
+import com.example.travel.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +20,7 @@ import java.util.Optional;
 public class CounselingService {
 
     private final CounselingRepository counselingRepository;
+    private final UserRepository userRepository;
 
     /**
      * 새로운 문의 생성
@@ -25,8 +28,20 @@ public class CounselingService {
     @Transactional
     public Counseling createCounseling(String userId, String title, String content,
             CounselingCategory category) {
+        User user;
+        try {
+            // userId가 숫자인 경우 (ID 기반 조회)
+            Long userIdLong = Long.parseLong(userId);
+            user = userRepository.findById(userIdLong)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 ID의 사용자가 존재하지 않습니다: " + userId));
+        } catch (NumberFormatException e) {
+            // userId가 숫자가 아닌 경우 (username으로 간주하고 조회)
+            user = userRepository.findByUsername(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 사용자명의 사용자가 존재하지 않습니다: " + userId));
+        }
+
         Counseling counseling = Counseling.builder()
-                .userId(userId)
+                .user(user)
                 .title(title)
                 .content(content)
                 .category(category)
@@ -50,7 +65,15 @@ public class CounselingService {
      */
     @Transactional(readOnly = true)
     public Page<Counseling> getCounselingsByUserId(String userId, Pageable pageable) {
-        return counselingRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
+        try {
+            Long userIdLong = Long.parseLong(userId);
+            return counselingRepository.findByUserIdOrderByCreatedAtDesc(userIdLong, pageable);
+        } catch (NumberFormatException e) {
+            // userId가 숫자가 아닌 경우 username으로 간주하고 해당 사용자의 ID로 조회
+            User user = userRepository.findByUsername(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 사용자명의 사용자가 존재하지 않습니다: " + userId));
+            return counselingRepository.findByUserIdOrderByCreatedAtDesc(user.getId(), pageable);
+        }
     }
 
     /**
@@ -59,7 +82,15 @@ public class CounselingService {
     @Transactional(readOnly = true)
     public Page<Counseling> getCounselingsByUserIdAndCategory(String userId, CounselingCategory category,
             Pageable pageable) {
-        return counselingRepository.findByUserIdAndCategoryOrderByCreatedAtDesc(userId, category, pageable);
+        try {
+            Long userIdLong = Long.parseLong(userId);
+            return counselingRepository.findByUserIdAndCategoryOrderByCreatedAtDesc(userIdLong, category, pageable);
+        } catch (NumberFormatException e) {
+            // userId가 숫자가 아닌 경우 username으로 간주하고 해당 사용자의 ID로 조회
+            User user = userRepository.findByUsername(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 사용자명의 사용자가 존재하지 않습니다: " + userId));
+            return counselingRepository.findByUserIdAndCategoryOrderByCreatedAtDesc(user.getId(), category, pageable);
+        }
     }
 
     /**
@@ -68,7 +99,16 @@ public class CounselingService {
     @Transactional(readOnly = true)
     public Page<Counseling> getCounselingsByUserIdAndAnswerStatus(String userId, boolean isAnswered,
             Pageable pageable) {
-        return counselingRepository.findByUserIdAndIsAnsweredOrderByCreatedAtDesc(userId, isAnswered, pageable);
+        try {
+            Long userIdLong = Long.parseLong(userId);
+            return counselingRepository.findByUserIdAndIsAnsweredOrderByCreatedAtDesc(userIdLong, isAnswered, pageable);
+        } catch (NumberFormatException e) {
+            // userId가 숫자가 아닌 경우 username으로 간주하고 해당 사용자의 ID로 조회
+            User user = userRepository.findByUsername(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 사용자명의 사용자가 존재하지 않습니다: " + userId));
+            return counselingRepository.findByUserIdAndIsAnsweredOrderByCreatedAtDesc(user.getId(), isAnswered,
+                    pageable);
+        }
     }
 
     /**
@@ -128,12 +168,25 @@ public class CounselingService {
      */
     @Transactional
     public boolean deleteCounselingByIdAndUserId(Long id, String userId) {
-        Optional<Counseling> counseling = counselingRepository.findByIdAndUserId(id, userId);
-        if (counseling.isPresent()) {
-            counselingRepository.deleteById(id);
-            return true;
+        try {
+            Long userIdLong = Long.parseLong(userId);
+            Optional<Counseling> counseling = counselingRepository.findByIdAndUserId(id, userIdLong);
+            if (counseling.isPresent()) {
+                counselingRepository.deleteById(id);
+                return true;
+            }
+            return false;
+        } catch (NumberFormatException e) {
+            // userId가 숫자가 아닌 경우 username으로 간주하고 해당 사용자의 ID로 조회
+            User user = userRepository.findByUsername(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 사용자명의 사용자가 존재하지 않습니다: " + userId));
+            Optional<Counseling> counseling = counselingRepository.findByIdAndUserId(id, user.getId());
+            if (counseling.isPresent()) {
+                counselingRepository.deleteById(id);
+                return true;
+            }
+            return false;
         }
-        return false;
     }
 
     /**
@@ -165,7 +218,15 @@ public class CounselingService {
      */
     @Transactional(readOnly = true)
     public long countByUserId(String userId) {
-        return counselingRepository.countByUserId(userId);
+        try {
+            Long userIdLong = Long.parseLong(userId);
+            return counselingRepository.countByUserId(userIdLong);
+        } catch (NumberFormatException e) {
+            // userId가 숫자가 아닌 경우 username으로 간주하고 해당 사용자의 ID로 조회
+            User user = userRepository.findByUsername(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 사용자명의 사용자가 존재하지 않습니다: " + userId));
+            return counselingRepository.countByUserId(user.getId());
+        }
     }
 
     /**
@@ -173,7 +234,15 @@ public class CounselingService {
      */
     @Transactional(readOnly = true)
     public long countByUserIdAndIsAnswered(String userId, boolean isAnswered) {
-        return counselingRepository.countByUserIdAndIsAnswered(userId, isAnswered);
+        try {
+            Long userIdLong = Long.parseLong(userId);
+            return counselingRepository.countByUserIdAndIsAnswered(userIdLong, isAnswered);
+        } catch (NumberFormatException e) {
+            // userId가 숫자가 아닌 경우 username으로 간주하고 해당 사용자의 ID로 조회
+            User user = userRepository.findByUsername(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 사용자명의 사용자가 존재하지 않습니다: " + userId));
+            return counselingRepository.countByUserIdAndIsAnswered(user.getId(), isAnswered);
+        }
     }
 
     /**
@@ -181,7 +250,54 @@ public class CounselingService {
      */
     @Transactional(readOnly = true)
     public Page<Counseling> searchCounselingsByUserId(String userId, String keyword, Pageable pageable) {
-        return counselingRepository.findByUserIdAndTitleContainingOrUserIdAndContentContaining(
-                userId, keyword, userId, keyword, pageable);
+        try {
+            Long userIdLong = Long.parseLong(userId);
+            return counselingRepository.findByUserIdAndTitleContainingOrUserIdAndContentContaining(
+                    userIdLong, keyword, userIdLong, keyword, pageable);
+        } catch (NumberFormatException e) {
+            // userId가 숫자가 아닌 경우 username으로 간주하고 해당 사용자의 ID로 조회
+            User user = userRepository.findByUsername(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 사용자명의 사용자가 존재하지 않습니다: " + userId));
+            return counselingRepository.findByUserIdAndTitleContainingOrUserIdAndContentContaining(
+                    user.getId(), keyword, user.getId(), keyword, pageable);
+        }
+    }
+
+    /**
+     * 특정 사용자의 상태와 카테고리로 문의 목록 조회
+     */
+    @Transactional(readOnly = true)
+    public Page<Counseling> getCounselingsByUserIdAndStatusAndCategory(
+            String userId, boolean isAnswered, CounselingCategory category, Pageable pageable) {
+        try {
+            Long userIdLong = Long.parseLong(userId);
+            return counselingRepository.findByUserIdAndIsAnsweredAndCategoryOrderByCreatedAtDesc(
+                userIdLong, isAnswered, category, pageable);
+        } catch (NumberFormatException e) {
+            User user = userRepository.findByUsername(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 사용자명의 사용자가 존재하지 않습니다: " + userId));
+            return counselingRepository.findByUserIdAndIsAnsweredAndCategoryOrderByCreatedAtDesc(
+                user.getId(), isAnswered, category, pageable);
+        }
+    }
+
+    /**
+     * 문의 수정
+     */
+    @Transactional
+    public Counseling updateCounseling(Long id, String title, String content, CounselingCategory category) {
+        Optional<Counseling> optionalCounseling = counselingRepository.findById(id);
+
+        if (optionalCounseling.isPresent()) {
+            Counseling counseling = optionalCounseling.get();
+            counseling.setTitle(title);
+            counseling.setContent(content);
+            counseling.setCategory(category);
+            counseling.setUpdatedAt(LocalDateTime.now());
+
+            return counselingRepository.save(counseling);
+        } else {
+            throw new IllegalArgumentException("해당 ID의 문의가 존재하지 않습니다: " + id);
+        }
     }
 }

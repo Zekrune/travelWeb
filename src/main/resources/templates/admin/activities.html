@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ワクワク 관리자 - 사용자 활동 로그</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- DatePicker -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" th:href="@{/css/admin/adminNav.css}">
+    <link rel="stylesheet" th:href="@{/css/admin/adminMain.css}">
+    <style>
+        .filter-section {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .custom-select {
+            background-color: white;
+            border: 1px solid #ddd;
+        }
+
+        .activity-table th {
+            white-space: nowrap;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .activity-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .badge-login {
+            background-color: #e3f2fd;
+            color: #0d6efd;
+        }
+
+        .badge-travel {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .badge-review {
+            background-color: #fff8e1;
+            color: #ffa000;
+        }
+
+        .badge-counseling {
+            background-color: #f3e5f5;
+            color: #9c27b0;
+        }
+
+        .badge-schedule {
+            background-color: #e0f7fa;
+            color: #00acc1;
+        }
+
+        .badge-other {
+            background-color: #eeeeee;
+            color: #616161;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 10px;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .activity-detail-btn {
+            color: #6c757d;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .activity-detail-btn:hover {
+            color: #0d6efd;
+        }
+
+        .activity-detail-modal .modal-body {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .activity-detail-item {
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .activity-detail-label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .activity-detail-value {
+            color: #212529;
+        }
+
+        .search-btn {
+            height: 38px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 상단 네비게이션 바 포함 -->
+    <div th:replace="~{admin/adminNav :: adminTopNav}"></div>
+
+    <div class="wrapper">
+        <!-- 메인 컨텐츠 영역 -->
+        <div class="main-content">
+            <div class="content-header">
+                <h2 class="content-title">사용자 활동 로그</h2>
+                <p class="text-muted">모든 사용자의 활동을 확인하고 필터링할 수 있습니다.</p>
+            </div>
+
+            <!-- 필터 섹션 -->
+            <div class="filter-section">
+                <div class="filter-header">
+                    <h5 class="m-0">필터</h5>
+                    <a th:href="@{/admin/activities}" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-redo"></i> 필터 초기화
+                    </a>
+                </div>
+                <form th:action="@{/admin/activities}" method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <label for="userId" class="form-label">사용자 ID</label>
+                        <input type="number" class="form-control" id="userId" name="userId" th:value="${currentUserId}"
+                            placeholder="사용자 ID">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="type" class="form-label">활동 유형</label>
+                        <select class="form-select custom-select" id="type" name="type">
+                            <option value="">모든 활동</option>
+                            <option th:each="type : ${activityTypes.entrySet()}" th:value="${type.key}"
+                                th:text="${type.value}" th:selected="${type.key == currentType}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="startDate" class="form-label">시작일</label>
+                        <input type="date" class="form-control datepicker" id="startDate" name="startDate"
+                            th:value="${currentStartDate}" placeholder="YYYY-MM-DD">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="endDate" class="form-label">종료일</label>
+                        <input type="date" class="form-control datepicker" id="endDate" name="endDate"
+                            th:value="${currentEndDate}" placeholder="YYYY-MM-DD">
+                    </div>
+                    <div class="col-md-10">
+                        <label for="keyword" class="form-label">키워드 검색</label>
+                        <input type="text" class="form-control" id="keyword" name="keyword" th:value="${currentKeyword}"
+                            placeholder="설명 또는 상세 정보 검색">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="d-block invisible">검색</label>
+                        <button type="submit" class="btn btn-primary w-100 search-btn">
+                            <i class="fas fa-search"></i> 검색
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 활동 로그 테이블 -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover activity-table mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>활동 유형</th>
+                                    <th>사용자</th>
+                                    <th>설명</th>
+                                    <th>IP 주소</th>
+                                    <th>일시</th>
+                                    <th>액션</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${activities.empty}">
+                                    <td colspan="7" class="text-center py-4">조회된 활동이 없습니다.</td>
+                                </tr>
+                                <tr th:each="activity : ${activities.content}">
+                                    <td th:text="${activity.id}">1</td>
+                                    <td>
+                                        <span
+                                            th:class="|activity-badge ${#strings.toLowerCase(activity.activityType.name()).startsWith('login') ? 'badge-login' : 
+                                                      (#strings.toLowerCase(activity.activityType.name()).contains('travel') ? 'badge-travel' : 
+                                                      (#strings.toLowerCase(activity.activityType.name()).contains('review') ? 'badge-review' : 
+                                                      (#strings.toLowerCase(activity.activityType.name()).contains('counseling') ? 'badge-counseling' : 
+                                                      (#strings.toLowerCase(activity.activityType.name()).contains('schedule') ? 'badge-schedule' : 'badge-other'))))}|"
+                                            th:text="${activity.activityType.description}">로그인</span>
+                                    </td>
+                                    <td>
+                                        <div class="user-info">
+                                            <div class="user-avatar">
+                                                <span th:text="${#strings.substring(activity.user.name, 0, 1)}">김</span>
+                                            </div>
+                                            <span
+                                                th:text="${activity.user.name} + ' (' + ${activity.user.username} + ')'">사용자명</span>
+                                        </div>
+                                    </td>
+                                    <td th:text="${activity.description}">시스템에 로그인함</td>
+                                    <td th:text="${activity.ipAddress ?: '-'}">127.0.0.1</td>
+                                    <td th:text="${#temporals.format(activity.createdAt, 'yyyy-MM-dd HH:mm:ss')}">
+                                        2023-07-28 14:30:45</td>
+                                    <td>
+                                        <button class="activity-detail-btn" type="button" data-bs-toggle="modal"
+                                            th:data-bs-target="'#activityModal' + ${activity.id}">
+                                            <i class="fas fa-info-circle"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 페이지네이션 -->
+            <div class="d-flex justify-content-center mt-4">
+                <nav th:if="${activities.totalPages > 0}">
+                    <ul class="pagination">
+                        <li class="page-item" th:classappend="${activities.first ? 'disabled' : ''}">
+                            <a class="page-link"
+                                th:href="@{/admin/activities(page=0, size=${activities.size}, sort=${param.sort}, userId=${currentUserId}, type=${currentType}, startDate=${currentStartDate}, endDate=${currentEndDate}, keyword=${currentKeyword})}"
+                                aria-label="First">
+                                <i class="fas fa-angle-double-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item" th:classappend="${activities.first ? 'disabled' : ''}">
+                            <a class="page-link"
+                                th:href="@{/admin/activities(page=${activities.number - 1}, size=${activities.size}, sort=${param.sort}, userId=${currentUserId}, type=${currentType}, startDate=${currentStartDate}, endDate=${currentEndDate}, keyword=${currentKeyword})}"
+                                aria-label="Previous">
+                                <i class="fas fa-angle-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item"
+                            th:each="i : ${#numbers.sequence(activities.number - 2 > 0 ? activities.number - 2 : 0, 
+                                                              activities.number + 2 < activities.totalPages ? activities.number + 2 : activities.totalPages - 1)}"
+                            th:classappend="${i == activities.number ? 'active' : ''}">
+                            <a class="page-link"
+                                th:href="@{/admin/activities(page=${i}, size=${activities.size}, sort=${param.sort}, userId=${currentUserId}, type=${currentType}, startDate=${currentStartDate}, endDate=${currentEndDate}, keyword=${currentKeyword})}"
+                                th:text="${i + 1}">1</a>
+                        </li>
+                        <li class="page-item" th:classappend="${activities.last ? 'disabled' : ''}">
+                            <a class="page-link"
+                                th:href="@{/admin/activities(page=${activities.number + 1}, size=${activities.size}, sort=${param.sort}, userId=${currentUserId}, type=${currentType}, startDate=${currentStartDate}, endDate=${currentEndDate}, keyword=${currentKeyword})}"
+                                aria-label="Next">
+                                <i class="fas fa-angle-right"></i>
+                            </a>
+                        </li>
+                        <li class="page-item" th:classappend="${activities.last ? 'disabled' : ''}">
+                            <a class="page-link"
+                                th:href="@{/admin/activities(page=${activities.totalPages - 1}, size=${activities.size}, sort=${param.sort}, userId=${currentUserId}, type=${currentType}, startDate=${currentStartDate}, endDate=${currentEndDate}, keyword=${currentKeyword})}"
+                                aria-label="Last">
+                                <i class="fas fa-angle-double-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <!-- 활동 상세 정보 모달 -->
+            <div th:each="activity : ${activities.content}" th:id="'activityModal' + ${activity.id}"
+                class="modal fade activity-detail-modal" tabindex="-1" aria-labelledby="activityModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="activityModalLabel">활동 상세 정보</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="activity-detail-item">
+                                <div class="activity-detail-label">활동 ID</div>
+                                <div class="activity-detail-value" th:text="${activity.id}">1</div>
+                            </div>
+                            <div class="activity-detail-item">
+                                <div class="activity-detail-label">활동 유형</div>
+                                <div class="activity-detail-value" th:text="${activity.activityType.description}">로그인
+                                </div>
+                            </div>
+                            <div class="activity-detail-item">
+                                <div class="activity-detail-label">사용자</div>
+                                <div class="activity-detail-value">
+                                    <div class="user-info">
+                                        <div class="user-avatar">
+                                            <span th:text="${#strings.substring(activity.user.name, 0, 1)}">김</span>
+                                        </div>
+                                        <span th:text="${activity.user.name} + ' (' + ${activity.user.username} + ')'"
+                                            style="margin-right: 10px;">사용자명</span>
+                                        <a th:href="@{/admin/users/{id}(id=${activity.user.id})}"
+                                            class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-user"></i> 프로필 보기
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="activity-detail-item">
+                                <div class="activity-detail-label">설명</div>
+                                <div class="activity-detail-value" th:text="${activity.description}">시스템에 로그인함</div>
+                            </div>
+                            <div class="activity-detail-item" th:if="${activity.details != null}">
+                                <div class="activity-detail-label">상세 정보</div>
+                                <div class="activity-detail-value" th:text="${activity.details}">상세 정보 내용</div>
+                            </div>
+                            <div class="activity-detail-item"
+                                th:if="${activity.targetId != null && activity.targetType != null}">
+                                <div class="activity-detail-label">대상</div>
+                                <div class="activity-detail-value">
+                                    <span th:text="${activity.targetType} + ' (' + ${activity.targetId} + ')'">리뷰
+                                        (123)</span>
+                                    <a th:href="@{/admin/{targetType}/{targetId}(targetType=${activity.targetType}, targetId=${activity.targetId})}"
+                                        class="btn btn-sm btn-outline-info ms-2">
+                                        <i class="fas fa-external-link-alt"></i> 보기
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="activity-detail-item">
+                                <div class="activity-detail-label">IP 주소</div>
+                                <div class="activity-detail-value" th:text="${activity.ipAddress ?: '정보 없음'}">127.0.0.1
+                                </div>
+                            </div>
+                            <div class="activity-detail-item">
+                                <div class="activity-detail-label">일시</div>
+                                <div class="activity-detail-value"
+                                    th:text="${#temporals.format(activity.createdAt, 'yyyy-MM-dd HH:mm:ss')}">
+                                    2023-07-28 14:30:45</div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Flatpickr 초기화 (날짜 선택기)
+            flatpickr(".datepicker", {
+                locale: "ko",
+                dateFormat: "Y-m-d",
+                allowInput: true
+            });
+        });
+    </script>
+</body>
+
+</html>

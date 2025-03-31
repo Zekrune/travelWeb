@@ -5,6 +5,11 @@ spring:
     username: root
     password: root
 
+  sql:
+    init:
+      # mode: always
+      platform: mysql
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -12,4 +17,4 @@ spring:
 
   profiles:
     include:
-    - oauth
+      - oauth

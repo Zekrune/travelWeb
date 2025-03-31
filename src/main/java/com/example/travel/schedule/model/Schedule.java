@@ -1,5 +1,7 @@
 package com.example.travel.schedule.model;
 
+import com.example.travel.review.model.Review;
+import com.example.travel.user.model.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -8,7 +10,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
@@ -22,8 +27,9 @@ public class Schedule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String userId; // 작성자
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @NotBlank(message = "출발지는 필수 입력 항목입니다")
     @Column(nullable = false)
@@ -38,6 +44,12 @@ public class Schedule {
     @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "날짜 형식은 YYYY-MM-DD여야 합니다")
     @Column(nullable = false)
     private String endDate;
+
+    @Column(nullable = false)
+    private String departureTime;
+
+    @Column(nullable = false)
+    private String returnTime;
 
     @NotBlank(message = "교통 수단을 선택해주세요")
     @Column(nullable = false)
@@ -74,6 +86,12 @@ public class Schedule {
     // 생성 시각
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    // 리뷰와의 관계 설정
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "schedule_id")
+    @Builder.Default
+    private List<Review> reviews = new ArrayList<>();
 
     @PrePersist
     public void onPrePersist() {

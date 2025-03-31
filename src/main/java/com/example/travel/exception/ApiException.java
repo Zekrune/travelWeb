@@ -1,9 +1,8 @@
 package com.example.travel.exception;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
-
-import lombok.Getter;
 
 @Getter
 public class ApiException extends RuntimeException {

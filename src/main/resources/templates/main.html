@@ -13,7 +13,8 @@
     <link rel="stylesheet" th:href="@{/css/main/nav.css}">
     <link rel="stylesheet" th:href="@{/css/main/weather.css}">
     <!-- 카카오맵 API 추가 -->
-    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=46e0a2dac4ec1a25c1bb0bc792417bd2&libraries=services"></script>
+    <script type="text/javascript"
+        src="//dapi.kakao.com/v2/maps/sdk.js?appkey=46e0a2dac4ec1a25c1bb0bc792417bd2&libraries=services"></script>
 </head>
 
 <body>
@@ -135,15 +136,15 @@
                     <!-- 여행이 없을 경우 -->
                     <div th:if="${#lists.isEmpty(upcomingTripsList)}" class="empty-trips">
                         <p>예정된 여행이 없습니다</p>
-                        <a href="/itineraries/createItinerary" class="create-trip-btn">새 여행 계획하기</a>
+                        <a href="/itineraries/ItineraryCreate" class="create-trip-btn">새 여행 계획하기</a>
                     </div>
 
                     <!-- 여행이 있을 경우 -->
                     <div th:unless="${#lists.isEmpty(upcomingTripsList)}" class="trip-cards">
                         <div th:each="trip : ${upcomingTripsList}" class="trip-card">
                             <div class="trip-date">
-                                <span class="date-number" th:text="${#dates.format(trip.startDate, 'dd')}">15</span>
-                                <span class="date-month" th:text="${#dates.format(trip.startDate, 'MM월')}">6월</span>
+                                <span class="date-number" th:text="${#strings.substring(trip.startDate, 8, 10)}">15</span>
+                                <span class="date-month" th:text="${#strings.substring(trip.startDate, 5, 7) + '월'}">6월</span>
                             </div>
                             <div class="trip-info">
                                 <h4 th:text="${trip.title}">제주도 여행</h4>
@@ -158,6 +159,46 @@
                             </div>
                             <a th:href="@{'/itineraries/' + ${trip.id}}" class="trip-view-btn">
                                 <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 종료된 여행 리스트 -->
+            <div class="completed-trips">
+                <h3><i class="fas fa-plane-arrival"></i> 종료된 여행</h3>
+                <div class="trips-container">
+                    <!-- 종료된 여행이 없을 경우 -->
+                    <div th:if="${#lists.isEmpty(completedTripsList)}" class="empty-trips">
+                        <p>종료된 여행이 없습니다</p>
+                    </div>
+
+                    <!-- 종료된 여행이 있을 경우 -->
+                    <div th:unless="${#lists.isEmpty(completedTripsList)}" class="trip-cards">
+                        <div th:each="trip : ${completedTripsList}" class="trip-card">
+                            <div class="trip-date">
+                                <span class="date-number" th:text="${#strings.substring(trip.endDate, 8, 10)}">15</span>
+                                <span class="date-month" th:text="${#strings.substring(trip.endDate, 5, 7) + '월'}">6월</span>
+                            </div>
+                            <div class="trip-info">
+                                <h4 th:text="${trip.title}">제주도 여행</h4>
+                                <p>
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>여행 완료</span>
+                                </p>
+                                <p th:if="${trip.hasReview}" class="has-review">
+                                    <i class="fas fa-star"></i>
+                                    <span>리뷰 작성됨</span>
+                                </p>
+                                <p th:unless="${trip.hasReview}" class="no-review">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <span>리뷰 미작성</span>
+                                </p>
+                            </div>
+                            <a th:href="@{'/schedule/scheduleDetails/' + ${trip.id}}" class="trip-view-btn">
+                                <i class="fas fa-pencil-alt" th:if="${!trip.hasReview}"></i>
+                                <i class="fas fa-arrow-right" th:if="${trip.hasReview}"></i>
                             </a>
                         </div>
                     </div>
@@ -195,7 +236,8 @@
             <div class="calendar-header">
                 <h2>여행 일정</h2>
                 <div class="calendar-actions">
-                    <button class="btn-create-event" onclick="window.location.href='/itineraries/mainPage'"><i class="fas fa-plus"></i> 새 일정</button>
+                    <button class="btn-create-event" onclick="window.location.href='/itineraries/itineraryMain'"><i
+                            class="fas fa-plus"></i> 새 일정</button>
                     <button class="btn-today">오늘</button>
                 </div>
             </div>
@@ -318,6 +360,9 @@
                     <label for="eventDescription"><i class="fas fa-align-left"></i> 여행 설명</label>
                     <textarea id="eventDescription" placeholder="여행에 대한 설명을 입력하세요"></textarea>
                 </div>
+
+                <!-- 일정 수정 폼에 추가 -->
+                <input type="hidden" id="eventId" name="eventId">
             </div>
 
             <div class="modal-buttons">

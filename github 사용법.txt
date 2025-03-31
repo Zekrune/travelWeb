@@ -30,5 +30,8 @@ git push origin feature/이름
 # 원격 저장소에서 develop 브랜치 삭제
 git push origin --delete develop
 
+git add src/main/resources/application-oauth.yml
+git commit --amend --no-edit
+
 
 

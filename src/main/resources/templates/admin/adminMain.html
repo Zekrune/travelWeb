@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ワクワク 관리자 대시보드</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" th:href="@{/css/admin/adminNav.css}">
+    <link rel="stylesheet" th:href="@{/css/admin/adminMain.css}">
+    <link rel="stylesheet" th:href="@{/css/main/main.css}">
+</head>
+
+<body>
+    <!-- 상단 네비게이션 바 포함 -->
+    <div th:replace="~{admin/adminNav :: adminTopNav}"></div>
+
+    <div class="wrapper">
+        <!-- 메인 컨텐츠 영역 -->
+        <div class="main-content">
+
+            <div class="summary-info mb-5">
+                <div class="current-date-time">
+                    <div class="date-wrapper">
+                        <span id="currentDate">2025년 3월 24일</span>
+                        <span id="currentTime">11:47:34</span>
+                    </div>
+                    <div class="greeting-text">
+                        안녕하세요, <span class="admin-name">관리자</span>님!
+                    </div>
+                </div>
+            </div>
+
+            <!-- 최근 활동 섹션 -->
+            <div class="row mt-5">
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="card-title m-0">최근 활동</h6>
+                                <a th:href="@{/admin/activities}" class="view-all-link">전체 보기 <i
+                                        class="fas fa-angle-right ms-1"></i></a>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>활동</th>
+                                            <th>사용자</th>
+                                            <th>상세 내용</th>
+                                            <th>일시</th>
+                                            <th>상태</th>
+                                            <th>액션</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:if="${#lists.isEmpty(recentActivities.content)}" class="text-center">
+                                            <td colspan="6">최근 활동 정보가 없습니다.</td>
+                                        </tr>
+                                        <tr th:each="activity : ${recentActivities.content}">
+                                            <td>
+                                                <span class="badge" th:classappend="${
+                                                        #strings.toLowerCase(activity.activityType.name()).startsWith('login') ? 'bg-info' :
+                                                        (#strings.toLowerCase(activity.activityType.name()).contains('travel') ? 'bg-primary' :
+                                                        (#strings.toLowerCase(activity.activityType.name()).contains('review') ? 'bg-warning' :
+                                                        (#strings.toLowerCase(activity.activityType.name()).contains('counseling') ? 'bg-warning' :
+                                                        (#strings.toLowerCase(activity.activityType.name()).contains('schedule') ? 'bg-success' : 'bg-secondary'))))
+                                                    }" th:text="${activity.activityType.description}">리뷰</span>
+                                            </td>
+                                            <td>
+                                                <div class="user-info">
+                                                    <span class="user-name" th:text="${activity.user.name}">김여행</span>
+                                                </div>
+                                            </td>
+                                            <td th:text="${activity.description}">새 리뷰 작성: "해운대 여행 후기"</td>
+                                            <td th:text="${#temporals.format(activity.createdAt, 'yyyy-MM-dd HH:mm')}">
+                                                방금 전</td>
+                                            <td>
+                                                <span class="badge bg-success">완료</span>
+                                            </td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <a th:href="@{/admin/activities(userId=${activity.user.id})}"
+                                                        class="btn btn-sm btn-light action-btn" title="사용자 활동 보기">
+                                                        <i class="fas fa-history"></i>
+                                                    </a>
+                                                    <a th:if="${activity.targetId != null && activity.targetType != null}"
+                                                        th:href="@{/admin/{type}/{id}(type=${activity.targetType}, id=${activity.targetId})}"
+                                                        class="btn btn-sm btn-light action-btn" title="상세 보기">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Bootstrap JS 및 Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.3/build/global/luxon.min.js"></script>
+    <script th:src="@{/js/main/nav.js}"></script>
+    <script>
+        // 현재 날짜 및 시간 업데이트
+        function updateDateTime() {
+            const now = luxon.DateTime.now().setZone('Asia/Seoul');
+            document.getElementById('currentDate').textContent = now.toFormat('yyyy년 M월 d일 (EEE)', { locale: 'ko' });
+            document.getElementById('currentTime').textContent = now.toFormat('HH:mm:ss');
+        }
+
+        // 1초마다 시간 업데이트
+        setInterval(updateDateTime, 1000);
+        updateDateTime(); // 초기 로드 시 업데이트
+
+        // 실시간 활동 업데이트 함수
+        function fetchRecentActivities() {
+            fetch('/admin/api/recent-activities')
+                .then(response => response.json())
+                .then(data => {
+                    updateActivityStream(data);
+                })
+                .catch(error => console.error('활동 데이터를 가져오는 중 오류가 발생했습니다:', error));
+        }
+
+        // 활동 스트림 업데이트
+        function updateActivityStream(activities) {
+            const activityStream = document.getElementById('activityStream');
+
+            if (!activities || activities.length === 0) {
+                activityStream.innerHTML = `
+                    <div class="no-activities">
+                        <i class="fas fa-info-circle"></i>
+                        <p>최근 활동 내역이 없습니다.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let activityHtml = '';
+
+            activities.slice(0, 5).forEach(activity => {
+                let iconClass = 'fas fa-exclamation-circle';
+                let activityClass = 'other';
+
+                const activityType = activity.activityType.name.toLowerCase();
+                if (activityType.startsWith('login')) {
+                    iconClass = 'fas fa-sign-in-alt';
+                    activityClass = 'login';
+                } else if (activityType.includes('travel')) {
+                    iconClass = 'fas fa-plane';
+                    activityClass = 'travel';
+                } else if (activityType.includes('review')) {
+                    iconClass = 'fas fa-comment';
+                    activityClass = 'review';
+                } else if (activityType.includes('counseling')) {
+                    iconClass = 'fas fa-question-circle';
+                    activityClass = 'counseling';
+                } else if (activityType.includes('schedule')) {
+                    iconClass = 'fas fa-calendar';
+                    activityClass = 'schedule';
+                }
+
+                const createdAt = luxon.DateTime.fromISO(activity.createdAt).toFormat('HH:mm');
+
+                activityHtml += `
+                    <div class="activity-item">
+                        <div class="activity-icon ${activityClass}">
+                            <i class="${iconClass}"></i>
+                        </div>
+                        <div class="activity-details">
+                            <div class="activity-user">
+                                <span class="user-name">${activity.user.name}</span>
+                                <span class="activity-time">${createdAt}</span>
+                            </div>
+                            <div class="activity-description">
+                                ${activity.description}
+                            </div>
+                            <div class="activity-actions">
+                                ${activity.targetId && activity.targetType ?
+                        `<a href="/admin/${activity.targetType}/${activity.targetId}" class="btn btn-sm btn-light">
+                                        상세보기
+                                    </a>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            activityStream.innerHTML = activityHtml;
+        }
+
+        // 새로고침 버튼 이벤트 리스너
+        document.getElementById('refreshActivities').addEventListener('click', function () {
+            this.classList.add('rotate-refresh');
+            fetchRecentActivities();
+
+            // 애니메이션 종료 후 클래스 제거
+            setTimeout(() => {
+                this.classList.remove('rotate-refresh');
+            }, 1000);
+        });
+
+        // 30초마다 자동 업데이트
+        setInterval(fetchRecentActivities, 30000);
+
+        // 차트 초기화 함수
+        function initializeCharts() {
+            // 차트 공통 옵션
+            Chart.defaults.font.family = "'Pretendard', sans-serif";
+            Chart.defaults.color = '#718096';
+
+            // 주간 일정 생성 현황 차트
+            const ctx1 = document.getElementById('weeklyChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: ['월', '화', '수', '목', '금', '토', '일'],
+                    datasets: [{
+                        label: '생성된 일정',
+                        data: [3, 5, 2, 8, 4, 6, 7],
+                        borderColor: '#0080c6',
+                        backgroundColor: 'rgba(0, 128, 198, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#0080c6',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 15,
+                                font: {
+                                    size: 13
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                            titleFont: {
+                                weight: 'bold',
+                                size: 13
+                            },
+                            bodyFont: {
+                                size: 12
+                            },
+                            padding: 12,
+                            cornerRadius: 8
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 사용자 증가 현황 차트
+            const ctx2 = document.getElementById('userChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: ['1월', '2월', '3월', '4월', '5월', '6월', '7월'],
+                    datasets: [{
+                        label: '신규 사용자',
+                        data: [12, 19, 8, 25, 15, 10, 22],
+                        backgroundColor: 'rgba(255, 107, 107, 0.7)',
+                        borderColor: 'rgba(255, 107, 107, 1)',
+                        borderWidth: 1,
+                        borderRadius: 5,
+                        maxBarThickness: 35
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 15,
+                                font: {
+                                    size: 13
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                            titleFont: {
+                                weight: 'bold',
+                                size: 13
+                            },
+                            bodyFont: {
+                                size: 12
+                            },
+                            padding: 12,
+                            cornerRadius: 8
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 페이지 로드 시 차트 초기화
+        document.addEventListener('DOMContentLoaded', function () {
+            initializeCharts();
+
+            // 드롭다운 메뉴 토글
+            document.addEventListener('click', function (event) {
+                const dropdown = document.getElementById('dropdownMenu');
+                const userMenu = document.querySelector('.user-menu');
+
+                if (!userMenu.contains(event.target) && dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                }
+            });
+        });
+
+        // 드롭다운 메뉴 토글 함수
+        function toggleMenu() {
+            const dropdown = document.getElementById('dropdownMenu');
+            dropdown.classList.toggle('show');
+        }
+    </script>
+</body>
+
+</html>
+
+<style>
+    /* 실시간 활동 위젯 스타일 */
+    .live-activity-widget {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .widget-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .widget-header h5 {
+        margin: 0;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+    }
+
+    .widget-header h5 i {
+        margin-right: 8px;
+        color: #ff9500;
+    }
+
+    .widget-controls {
+        display: flex;
+        gap: 8px;
+    }
+
+    .widget-controls .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .rotate-refresh {
+        animation: rotate 1s linear;
+    }
+
+    @keyframes rotate {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .live-activity-container {
+        padding: 0;
+    }
+
+    .activity-stream {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .no-activities {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        color: #a0aec0;
+    }
+
+    .no-activities i {
+        font-size: 32px;
+        margin-bottom: 10px;
+    }
+
+    .activity-item {
+        display: flex;
+        padding: 15px 20px;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background-color 0.2s;
+    }
+
+    .activity-item:hover {
+        background-color: #f9fafb;
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .activity-icon.login {
+        background-color: #e3f2fd;
+        color: #0d6efd;
+    }
+
+    .activity-icon.travel {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .activity-icon.review {
+        background-color: #fff8e1;
+        color: #ffa000;
+    }
+
+    .activity-icon.counseling {
+        background-color: #f3e5f5;
+        color: #9c27b0;
+    }
+
+    .activity-icon.schedule {
+        background-color: #e0f7fa;
+        color: #00acc1;
+    }
+
+    .activity-icon.other {
+        background-color: #eeeeee;
+        color: #616161;
+    }
+
+    .activity-details {
+        flex: 1;
+    }
+
+    .activity-user {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+    }
+
+    .user-name {
+        font-weight: 600;
+        font-size: 14px;
+        color: #2d3748;
+    }
+
+    .activity-time {
+        font-size: 12px;
+        color: #718096;
+    }
+
+    .activity-description {
+        font-size: 13px;
+        color: #4a5568;
+        margin-bottom: 8px;
+    }
+
+    .activity-actions {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .activity-actions .btn {
+        font-size: 11px;
+        padding: 2px 8px;
+    }
+</style>

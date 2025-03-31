@@ -1,5 +1,6 @@
 package com.example.travel.user.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,8 +14,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
-import lombok.RequiredArgsConstructor;
-
 // 스프링 시큐리티의 전체적인 설정을 관리하는 클래스
 @Configuration
 @RequiredArgsConstructor
@@ -23,6 +22,7 @@ public class SecurityConfig {
 
 	private final AuthenticationFailureHandler authenticationFailureHandler;
 	private final OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService;
+	private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -33,10 +33,13 @@ public class SecurityConfig {
 						.requestMatchers("/css/**", "/js/**", "/img/**", "/static/**", "/api/**").permitAll()
 
 						// ✅ 인증없이 접근 가능한 페이지
-						.requestMatchers("/", "/users/login", "/users/register", "/error").permitAll()
+						.requestMatchers("/", "/users/login", "/users/register", "/users/add-info", "/error").permitAll()
+						
+						// ✅ API 엔드포인트 중 인증 없이 접근 가능
+						.requestMatchers("/api/users/check-username", "/api/users/check-nickname", "/api/users/add-info").permitAll()
 
 						// ✅ 관리자 페이지 접근 제한
-						.requestMatchers("/admin/**").hasAnyRole("ADMIN", "MANAGER")
+						.requestMatchers("/admin/**").hasAnyRole("ADMIN")
 
 						// ✅ 그 외 모든 요청은 인증 필요
 						.anyRequest().authenticated())
@@ -58,12 +61,11 @@ public class SecurityConfig {
 
 				// ✅ OAuth2 로그인 설정
 				.oauth2Login(oauth2 -> oauth2
-						.userInfoEndpoint(userInfo -> userInfo
-								.userService(oAuth2UserService))
-								.defaultSuccessUrl("/users/login-success")
-								.failureUrl("/users/login-fail")
-								.failureHandler(authenticationFailureHandler)
-								);
+				.userInfoEndpoint(userInfo -> userInfo
+					.userService(oAuth2UserService))
+				.successHandler(oAuth2LoginSuccessHandler)
+				.failureHandler(authenticationFailureHandler)
+			);
 
 		return http.build();
 	}

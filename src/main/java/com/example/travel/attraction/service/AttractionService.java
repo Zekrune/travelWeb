@@ -1,5 +1,10 @@
 package com.example.travel.attraction.service;
 
+import com.example.travel.attraction.model.Attraction;
+import com.example.travel.attraction.model.AttractionApiData;
+import com.example.travel.attraction.repository.AttractionRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -13,12 +18,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.example.travel.attraction.model.Attraction;
-import com.example.travel.attraction.model.AttractionApiData;
-import com.example.travel.attraction.repository.AttractionRepository;
-
-import jakarta.annotation.PostConstruct;
-
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.StringReader;
@@ -27,12 +28,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service

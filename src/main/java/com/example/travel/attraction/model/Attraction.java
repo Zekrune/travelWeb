@@ -2,6 +2,7 @@ package com.example.travel.attraction.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+
 import java.time.LocalDateTime;
 
 @Data

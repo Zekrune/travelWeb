@@ -1,8 +1,7 @@
 package com.example.travel.itinerary.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import com.example.travel.itinerary.model.Location;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 

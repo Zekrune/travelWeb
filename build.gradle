@@ -61,6 +61,8 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-compileJava {
-    options.compilerArgs << '-parameters'
+// Gradle을 통해 컴파일 시 파라미터 이름 정보를 보존하도록 설정
+tasks.withType(JavaCompile) {
+    options.compilerArgs = ['-parameters']
+    options.encoding = 'UTF-8'
 }

@@ -20,8 +20,6 @@ document.addEventListener("DOMContentLoaded", function () {
   // 드롭다운 메뉴 처리
   const userIcon = document.querySelector(".user-icon");
   const dropdownMenu = document.getElementById("dropdownMenu");
-  const notificationIcon = document.querySelector(".notification-icon");
-  const notificationDropdown = document.getElementById("notificationDropdown");
 
   if (userIcon && dropdownMenu) {
     let hideTimeout;
@@ -49,94 +47,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }, 300); // 0.3초 후 숨김 처리
     });
   }
-
-  // 알림 메뉴 처리 - 클릭 방식으로 변경
-  if (notificationIcon && notificationDropdown) {
-    // 클릭 이벤트 리스너 추가
-    notificationIcon.addEventListener("click", function (e) {
-      e.preventDefault(); // 기본 동작 방지
-      toggleNotifications(); // 알림 토글 함수 호출
-    });
-  }
-
-  // 알림 삭제 버튼 처리
-  const dismissButtons = document.querySelectorAll(".notification-dismiss");
-  dismissButtons.forEach((button) => {
-    button.addEventListener("click", function (e) {
-      e.preventDefault();
-      const notificationItem = this.closest(".notification-item");
-      notificationItem.style.height = "0";
-      notificationItem.style.padding = "0";
-      notificationItem.style.opacity = "0";
-
-      setTimeout(() => {
-        notificationItem.remove();
-
-        // 알림이 없을 경우 빈 메시지 표시
-        const notificationItems =
-          document.querySelectorAll(".notification-item");
-        if (notificationItems.length === 0) {
-          const notificationItemsContainer = document.querySelector(
-            ".notification-items"
-          );
-          if (notificationItemsContainer) {
-            notificationItemsContainer.innerHTML = `
-              <div class="empty-notifications">
-                <p>새로운 알림이 없습니다</p>
-              </div>
-            `;
-          }
-        }
-      }, 300);
-    });
-  });
-
-  // 모두 읽음 표시 버튼 처리
-  const markAllReadBtn = document.querySelector(".mark-all-read");
-  if (markAllReadBtn) {
-    markAllReadBtn.addEventListener("click", function (e) {
-      e.preventDefault();
-      const notificationItems = document.querySelectorAll(".notification-item");
-
-      if (notificationItems.length > 0) {
-        const notificationItemsContainer = document.querySelector(
-          ".notification-items"
-        );
-        notificationItemsContainer.innerHTML = `
-          <div class="empty-notifications">
-            <p>새로운 알림이 없습니다</p>
-          </div>
-        `;
-
-        // 알림 배지 제거
-        const notificationBadge = document.querySelector(".notification-badge");
-        if (notificationBadge) {
-          notificationBadge.style.display = "none";
-        }
-      }
-    });
-  }
-
-  // 드롭다운 메뉴 외부 클릭 시 닫기
-  document.addEventListener("click", function (event) {
-    if (
-      userIcon &&
-      dropdownMenu &&
-      !userIcon.contains(event.target) &&
-      !dropdownMenu.contains(event.target)
-    ) {
-      dropdownMenu.style.display = "none";
-    }
-
-    if (
-      notificationIcon &&
-      notificationDropdown &&
-      !notificationIcon.contains(event.target) &&
-      !notificationDropdown.contains(event.target)
-    ) {
-      notificationDropdown.style.display = "none";
-    }
-  });
 });
 
 // 드롭다운 메뉴 토글 함수

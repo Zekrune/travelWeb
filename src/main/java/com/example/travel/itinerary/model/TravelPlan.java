@@ -1,5 +1,6 @@
 package com.example.travel.itinerary.model;
 
+import com.example.travel.user.model.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -39,6 +40,16 @@ public class TravelPlan {
     @Column(nullable = false)
     private String endDate;
 
+    @NotBlank(message = "출발 시간은 필수 입력 항목입니다")
+    @Pattern(regexp = "([01]?[0-9]|2[0-3]):[0-5][0-9]", message = "시간 형식은 HH:MM이어야 합니다")
+    @Column(nullable = false)
+    private String departureTime;
+
+    @NotBlank(message = "도착 시간은 필수 입력 항목입니다")
+    @Pattern(regexp = "([01]?[0-9]|2[0-3]):[0-5][0-9]", message = "시간 형식은 HH:MM이어야 합니다")
+    @Column(nullable = false)
+    private String returnTime;
+
     @NotBlank(message = "교통 수단을 선택해주세요")
     @Column(nullable = false)
     private String transportation;
@@ -64,8 +75,9 @@ public class TravelPlan {
     private String itinerary;
 
     // 작성자
-    @Column(nullable = false)
-    private String userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER_ID"))
+    private User user;
 
     // 생성 시각
     @Column(nullable = false, updatable = false)
@@ -75,6 +87,11 @@ public class TravelPlan {
     @Column(name = "completed", columnDefinition = "BOOLEAN DEFAULT false", nullable = false)
     @Builder.Default
     private boolean isCompleted = false;
+
+    // 위치 정보와의 관계
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id")
+    private Location location;
 
     @PrePersist
     public void onPrePersist() {

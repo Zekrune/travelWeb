@@ -1,9 +1,8 @@
 package com.example.travel.itinerary.service;
 
-import org.springframework.stereotype.Service;
-
 import com.example.travel.itinerary.model.Location;
 import com.example.travel.itinerary.repository.LocationRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 

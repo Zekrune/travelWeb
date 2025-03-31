@@ -1,14 +1,12 @@
 package com.example.travel.user.config;
 
+import com.example.travel.user.model.User;
+import com.example.travel.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import com.example.travel.user.model.User;
-import com.example.travel.user.repository.UserRepository;
-
-import lombok.RequiredArgsConstructor;
 
 /*
  * 1. 로그인 페이지에서 로그인 시도를 하면

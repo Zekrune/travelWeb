@@ -1,9 +1,5 @@
 package com.example.travel.itinerary.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.example.travel.exception.BadRequestException;
 import com.example.travel.exception.ResourceNotFoundException;
 import com.example.travel.itinerary.dto.TravelPlanDTO;
@@ -12,6 +8,14 @@ import com.example.travel.itinerary.repository.TravelPlanRepository;
 import com.example.travel.schedule.dto.ScheduleDTO;
 import com.example.travel.schedule.model.Schedule;
 import com.example.travel.schedule.repositroy.ScheduleRepository;
+import com.example.travel.user.model.User;
+import com.example.travel.user.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -19,16 +23,19 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 @Service
 public class TravelPlanService {
+
+    private static final Logger log = LoggerFactory.getLogger(TravelPlanService.class);
 
     @Autowired
     private TravelPlanRepository travelPlanRepository;
 
     @Autowired
     private ScheduleRepository scheduleRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private GPTService gptService;
@@ -38,10 +45,21 @@ public class TravelPlanService {
      */
     @Transactional(readOnly = true)
     public List<TravelPlanDTO> getUserPlans(String userId) {
-        List<TravelPlan> plans = travelPlanRepository.findByUserId(userId);
-        return plans.stream()
-                .map(TravelPlanDTO::fromEntity)
-                .collect(Collectors.toList());
+        try {
+            Long userIdLong = Long.parseLong(userId);
+            List<TravelPlan> plans = travelPlanRepository.findByUserId(userIdLong);
+            return plans.stream()
+                    .map(TravelPlanDTO::fromEntity)
+                    .collect(Collectors.toList());
+        } catch (NumberFormatException e) {
+            // userId가 숫자가 아닌 경우(예: "user1") username으로 간주
+            User user = userRepository.findByUsername(userId)
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "username", userId));
+            List<TravelPlan> plans = travelPlanRepository.findByUser(user);
+            return plans.stream()
+                    .map(TravelPlanDTO::fromEntity)
+                    .collect(Collectors.toList());
+        }
     }
 
     /**
@@ -53,6 +71,27 @@ public class TravelPlanService {
 
         // GPT로 일정 JSON 생성
         TravelPlan plan = planDTO.toEntity();
+        
+        // User 정보 처리
+        if (plan.getUser() != null) {
+            try {
+                // ID로 사용자 조회
+                if (plan.getUser().getId() != null && plan.getUser().getId() > 0) {
+                    User dbUser = userRepository.findById(plan.getUser().getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("User", "id", plan.getUser().getId()));
+                    plan.setUser(dbUser);
+                } 
+                // Username으로 사용자 조회
+                else if (plan.getUser().getUsername() != null && !plan.getUser().getUsername().isEmpty()) {
+                    User dbUser = userRepository.findByUsername(plan.getUser().getUsername())
+                        .orElseThrow(() -> new ResourceNotFoundException("User", "username", plan.getUser().getUsername()));
+                    plan.setUser(dbUser);
+                }
+            } catch (Exception e) {
+                throw new BadRequestException("사용자 정보를 처리하는 중 오류가 발생했습니다: " + e.getMessage());
+            }
+        }
+        
         try {
             String planContent = gptService.generatePlanContent(plan);
 
@@ -101,8 +140,29 @@ public class TravelPlanService {
         TravelPlan travelPlan = travelPlanRepository.findById(planId)
                 .orElseThrow(() -> new ResourceNotFoundException("TravelPlan", "planId", planId));
 
-        // 권한 확인
-        if (!travelPlan.getUserId().equals(userId)) {
+        // 권한 확인 로직 개선
+        log.info("확인 - 요청 사용자 ID: {}, 여행 계획 소유자: {}", userId, 
+                 travelPlan.getUser() != null ? travelPlan.getUser().getId() : "없음");
+                 
+        // 테스트 및 개발 환경에서는 권한 검사를 우회할 수 있도록 설정
+        boolean skipAuthCheck = false;
+        
+        // 개발 환경일 경우 권한 검사 우회 (환경 변수 또는 프로필 기반)
+        String activeProfile = System.getProperty("spring.profiles.active");
+        if (activeProfile != null && (activeProfile.equals("dev") || activeProfile.equals("test"))) {
+            skipAuthCheck = true;
+            log.warn("개발 모드: 여행 계획 권한 검사 우회");
+        }
+        
+        // 실제 권한 확인 로직
+        if (!skipAuthCheck && (travelPlan.getUser() == null || 
+                (travelPlan.getUser().getId() != null && 
+                 !travelPlan.getUser().getId().toString().equals(userId) && 
+                 !userId.equals(travelPlan.getUser().getUsername())))) {
+            log.warn("여행 계획({})에 대한 권한 거부 - 요청자: {}, 소유자: {}/{}", 
+                      planId, userId, 
+                      travelPlan.getUser() != null ? travelPlan.getUser().getId() : "없음",
+                      travelPlan.getUser() != null ? travelPlan.getUser().getUsername() : "없음");
             throw new BadRequestException("해당 여행 계획에 대한 권한이 없습니다.");
         }
 
@@ -123,7 +183,9 @@ public class TravelPlanService {
         travelPlanRepository.save(travelPlan);
 
         // Schedule 저장
+        log.info("일정 저장 - scheduleJson: {}", schedule.getScheduleJson().substring(0, Math.min(100, schedule.getScheduleJson().length())) + "...");
         Schedule savedSchedule = scheduleRepository.save(schedule);
+        
         return ScheduleDTO.fromEntity(savedSchedule);
     }
 
@@ -153,10 +215,21 @@ public class TravelPlanService {
      */
     @Transactional(readOnly = true)
     public List<ScheduleDTO> getUserSchedules(String userId) {
-        List<Schedule> schedules = scheduleRepository.findByUserId(userId);
-        return schedules.stream()
-                .map(ScheduleDTO::fromEntity)
-                .collect(Collectors.toList());
+        try {
+            Long userIdLong = Long.parseLong(userId);
+            List<Schedule> schedules = scheduleRepository.findByUserId(userIdLong);
+            return schedules.stream()
+                    .map(ScheduleDTO::fromEntity)
+                    .collect(Collectors.toList());
+        } catch (NumberFormatException e) {
+            // userId가 숫자가 아닌 경우 username으로 찾기
+            User user = userRepository.findByUsername(userId)
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "username", userId));
+            List<Schedule> schedules = scheduleRepository.findByUser(user);
+            return schedules.stream()
+                    .map(ScheduleDTO::fromEntity)
+                    .collect(Collectors.toList());
+        }
     }
 
     /**
@@ -164,10 +237,25 @@ public class TravelPlanService {
      */
     private Schedule createScheduleFromTravelPlan(TravelPlan travelPlan, String userId, String editedItinerary) {
         Schedule schedule = new Schedule();
-        schedule.setUserId(userId);
+
+        // User 객체 설정
+        try {
+            Long userIdLong = Long.parseLong(userId);
+            User user = userRepository.findById(userIdLong)
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "id", userIdLong));
+            schedule.setUser(user);
+        } catch (NumberFormatException e) {
+            // userId가 숫자가 아닌 경우 username으로 찾기
+            User user = userRepository.findByUsername(userId)
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "username", userId));
+            schedule.setUser(user);
+        }
+
         schedule.setDepartLocation(travelPlan.getDepartLocation());
         schedule.setStartDate(travelPlan.getStartDate());
         schedule.setEndDate(travelPlan.getEndDate());
+        schedule.setDepartureTime(travelPlan.getDepartureTime());
+        schedule.setReturnTime(travelPlan.getReturnTime());
         schedule.setTransportation(travelPlan.getTransportation());
         schedule.setDestination(travelPlan.getDestination());
         schedule.setPurpose(travelPlan.getPurpose());

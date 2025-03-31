@@ -20,8 +20,8 @@ public class WeatherApiController {
 
     @GetMapping("/api/weather")
     public ResponseEntity<WeatherResponse> getWeatherApi(
-            @RequestParam double lat,
-            @RequestParam double lon) {
+            @RequestParam(name = "lat") double lat,
+            @RequestParam(name = "lon") double lon) {
 
         logger.info("날씨 API 요청 - 위도: {}, 경도: {}", lat, lon);
 
@@ -50,7 +50,6 @@ public class WeatherApiController {
         double YO = 136; // 기준점 Y좌표(GRID)
 
         double DEGRAD = Math.PI / 180.0;
-        double RADDEG = 180.0 / Math.PI;
 
         double re = RE / GRID;
         double slat1 = SLAT1 * DEGRAD;

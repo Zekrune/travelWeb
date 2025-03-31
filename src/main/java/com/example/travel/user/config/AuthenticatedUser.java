@@ -1,17 +1,15 @@
 package com.example.travel.user.config;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.ArrayList;
-
+import com.example.travel.user.model.User;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import com.example.travel.user.model.User;
-
-import lombok.Getter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 
 @Getter
 public class AuthenticatedUser implements UserDetails, OAuth2User {

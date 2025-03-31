@@ -85,8 +85,7 @@
         </div>
 
         <!-- 추가 정보 섹션 -->
-        <div class="attraction-additional-info" 
-            th:if="${(attraction.usageAmount != null && attraction.usageAmount != '') || 
+        <div class="attraction-additional-info" th:if="${(attraction.usageAmount != null && attraction.usageAmount != '') || 
                     (attraction.hldyInfo != null && attraction.hldyInfo != '')}">
             <h2 class="section-title"><i class="fas fa-plus-circle"></i> 추가 정보</h2>
             <div class="attraction-info-grid">
@@ -105,19 +104,19 @@
         <!-- 관련 명소 섹션을 주변 맛집 섹션으로 변경 -->
         <div class="nearby-restaurants">
             <h2 class="section-title"><i class="fas fa-utensils"></i> 주변 맛집</h2>
-            
+
             <!-- 로딩 인디케이터 -->
             <div id="loading-restaurants" class="loading-container">
                 <div class="loading-spinner"></div>
                 <p>주변 맛집을 검색 중입니다...</p>
             </div>
-            
+
             <!-- 결과 없음 메시지 -->
             <div id="no-restaurants" class="no-results" style="display: none;">
                 <i class="fas fa-search"></i>
                 <p>주변에 맛집 정보가 없습니다.</p>
             </div>
-            
+
             <!-- 맛집 목록 -->
             <div id="restaurants-grid" class="nearby-restaurants-grid">
                 <!-- 맛집 데이터는 JavaScript로 동적 생성됩니다 -->
@@ -138,7 +137,8 @@
     </div>
 
     <!-- 카카오맵 API -->
-    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=941282e8b7c94ddf03067d4aca6b05f0&libraries=services"></script>
+    <script
+        src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=941282e8b7c94ddf03067d4aca6b05f0&libraries=services"></script>
     <script>
         // Thymeleaf에서 전달된 lat, lng 값 가져오기
         var latitude = /*[[${ attraction.lat }]]*/ '[[${attraction.lat}]]'; // 위도
@@ -147,11 +147,11 @@
 
         // 지도 옵션 설정
         var mapContainer = document.getElementById('map'); // 지도를 표시할 div
-            mapOption = {
-                center: new kakao.maps.LatLng(latitude, longitude), // 서버에서 받은 lat, lng로 지도 중심 설정
-                level: 3, // 지도의 확대 레벨
-                mapTypeId: kakao.maps.MapTypeId.ROADMAP // 지도 종류
-            };
+        mapOption = {
+            center: new kakao.maps.LatLng(latitude, longitude), // 서버에서 받은 lat, lng로 지도 중심 설정
+            level: 3, // 지도의 확대 레벨
+            mapTypeId: kakao.maps.MapTypeId.ROADMAP // 지도 종류
+        };
 
         // 지도를 생성한다
         var map = new kakao.maps.Map(mapContainer, mapOption);
@@ -161,7 +161,7 @@
             position: new kakao.maps.LatLng(latitude, longitude), // 마커의 좌표
             map: map // 마커를 표시할 지도 객체
         });
-        
+
         // 인포윈도우 생성
         var infowindow = new kakao.maps.InfoWindow({
             content: '<div style="padding:5px;font-size:12px;text-align:center;">' + attractionName + '</div>'
@@ -169,36 +169,36 @@
         infowindow.open(map, marker);
 
         // 지도 크기 조정을 위한 리사이즈 이벤트 처리
-        window.addEventListener('resize', function() {
+        window.addEventListener('resize', function () {
             map.relayout();
         });
-        
+
         // 주변 맛집 검색 함수
         function searchNearbyRestaurants() {
             // 로딩 표시
             document.getElementById('loading-restaurants').style.display = 'block';
             document.getElementById('no-restaurants').style.display = 'none';
             document.getElementById('restaurants-grid').innerHTML = '';
-            
+
             // 장소 검색 객체 생성
             var places = new kakao.maps.services.Places();
-            
+
             // 검색 옵션
             var searchOptions = {
                 location: new kakao.maps.LatLng(latitude, longitude),
                 radius: 1000, // 1km 반경 내 검색
                 sort: kakao.maps.services.SortBy.DISTANCE // 거리순 정렬
             };
-            
+
             // 음식점 카테고리로 검색
-            places.categorySearch('FD6', function(result, status) {
+            places.categorySearch('FD6', function (result, status) {
                 // 로딩 숨기기
                 document.getElementById('loading-restaurants').style.display = 'none';
-                
+
                 if (status === kakao.maps.services.Status.OK) {
                     // 검색 결과가 있는 경우
                     displayRestaurants(result);
-                    
+
                     // 지도에 맛집 마커 표시
                     addRestaurantMarkers(result);
                 } else {
@@ -207,35 +207,35 @@
                 }
             }, searchOptions);
         }
-        
+
         // 맛집 목록 표시 함수
         function displayRestaurants(restaurants) {
             var container = document.getElementById('restaurants-grid');
-            
+
             // 최대 6개까지만 표시
             var maxDisplay = Math.min(restaurants.length, 6);
-            
+
             if (maxDisplay === 0) {
                 document.getElementById('no-restaurants').style.display = 'block';
                 return;
             }
-            
+
             for (var i = 0; i < maxDisplay; i++) {
                 var restaurant = restaurants[i];
-                
+
                 // 거리 계산 (미터 단위)
                 var distance = restaurant.distance;
                 var distanceText = distance < 1000 ? distance + 'm' : (distance / 1000).toFixed(1) + 'km';
-                
+
                 // 카카오 Place ID를 이용한 이미지 URL 생성 (카카오 Place ID 기반 이미지)
                 var imageUrl = 'https://place.map.kakao.com/photoService/photoList?id=' + restaurant.id;
-                
+
                 // 카드 생성
                 var card = document.createElement('a');
                 card.className = 'restaurant-card';
                 card.href = 'https://map.kakao.com/link/to/' + restaurant.id;
                 card.target = '_blank';
-                
+
                 // 카드 내용 구성
                 card.innerHTML = `
                     <div class="restaurant-image" style="background-image: url('https://img.icons8.com/color/96/000000/restaurant.png'); background-size: 60px; background-repeat: no-repeat; background-position: center; background-color: #f8f9fa;">
@@ -250,11 +250,11 @@
                         </div>
                     </div>
                 `;
-                
+
                 container.appendChild(card);
-                
+
                 // 이미지 로드 시도 (CORS 정책으로 인해 직접 접근은 어려울 수 있음)
-                (function(cardElement, placeId) {
+                (function (cardElement, placeId) {
                     fetch('/api/restaurant-image?id=' + placeId, { method: 'GET' })
                         .then(response => response.json())
                         .then(data => {
@@ -267,43 +267,43 @@
                 })(card, restaurant.id);
             }
         }
-        
+
         // 지도에 맛집 마커 추가
         function addRestaurantMarkers(restaurants) {
             // 최대 6개까지만 마커 표시
             var maxMarkers = Math.min(restaurants.length, 6);
-            
+
             for (var i = 0; i < maxMarkers; i++) {
                 var restaurant = restaurants[i];
-                
+
                 // 맛집 마커 생성
                 var restaurantMarker = new kakao.maps.Marker({
                     position: new kakao.maps.LatLng(restaurant.y, restaurant.x),
                     map: map
                 });
-                
+
                 // 맛집 인포윈도우 생성
-                (function(marker, place) {
+                (function (marker, place) {
                     // 마커 클릭 이벤트
-                    kakao.maps.event.addListener(marker, 'click', function() {
+                    kakao.maps.event.addListener(marker, 'click', function () {
                         var infowindow = new kakao.maps.InfoWindow({
-                            content: '<div style="padding:5px;font-size:12px;width:150px;text-align:center;word-break:keep-all;">' + 
-                                    place.place_name + '<br><span style="font-size:11px;color:#888;">' + 
-                                    place.category_name.split('>').pop().trim() + '</span></div>'
+                            content: '<div style="padding:5px;font-size:12px;width:150px;text-align:center;word-break:keep-all;">' +
+                                place.place_name + '<br><span style="font-size:11px;color:#888;">' +
+                                place.category_name.split('>').pop().trim() + '</span></div>'
                         });
                         infowindow.open(map, marker);
-                        
+
                         // 3초 후 인포윈도우 닫기
-                        setTimeout(function() {
+                        setTimeout(function () {
                             infowindow.close();
                         }, 3000);
                     });
                 })(restaurantMarker, restaurant);
             }
         }
-        
+
         // 페이지 로드 완료 후 주변 맛집 검색 실행
-        window.addEventListener('load', function() {
+        window.addEventListener('load', function () {
             // 지도가 완전히 로드된 후 맛집 검색 실행
             setTimeout(searchNearbyRestaurants, 1000);
         });
