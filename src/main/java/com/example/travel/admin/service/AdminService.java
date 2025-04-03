@@ -1,7 +1,6 @@
 package com.example.travel.admin.service;
 
 import com.example.travel.admin.dto.DashboardDataDto;
-import com.example.travel.attraction.model.Attraction;
 import com.example.travel.attraction.repository.AttractionRepository;
 import com.example.travel.counseling.repository.CounselingRepository;
 import com.example.travel.itinerary.model.TravelPlan;
@@ -15,10 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Service
@@ -116,13 +112,6 @@ public class AdminService {
     }
 
     /**
-     * 모든 관광 명소 목록을 반환합니다.
-     */
-    public List<Attraction> getAllAttractions() {
-        return attractionRepository.findAll();
-    }
-
-    /**
      * 모든 사용자 목록을 반환합니다.
      */
     public List<User> getAllUsers() {
@@ -136,53 +125,4 @@ public class AdminService {
         return reviewRepository.findAll();
     }
 
-    /**
-     * 신고된 리뷰 목록을 반환합니다. (호환성을 위해 유지)
-     */
-    public List<Review> getReportedReviews() {
-        // 실제 구현에서는 AdminReviewsController에서 직접 처리하므로
-        // 호환성을 위해 빈 목록만 반환합니다.
-        return Collections.emptyList();
-    }
-
-    /**
-     * 시스템 로그를 반환합니다.
-     */
-    public List<Map<String, Object>> getSystemLogs() {
-        // 실제 구현에서는 로그 테이블이나 파일에서 데이터를 가져옴
-        // 임시 구현으로 빈 리스트 반환
-        return new ArrayList<>();
-    }
-
-    /**
-     * 총 사용자 수 조회
-     */
-    public int getUserCount() {
-        // 임시로 더미 데이터 반환 (실제로는 UserRepository에서 count() 호출)
-        return 28;
-    }
-
-    /**
-     * 대기 중인 명소 추가 요청 수 조회
-     */
-    public int getPendingSpotRequestsCount() {
-        // 임시로 더미 데이터 반환
-        return 12;
-    }
-
-    /**
-     * 미답변 문의 수 조회
-     */
-    public int getUnansweredInquiriesCount() {
-        // 임시로 더미 데이터 반환
-        return 8;
-    }
-
-    /**
-     * 신고된 리뷰 수 조회
-     */
-    public int getReportedReviewsCount() {
-        // 임시로 더미 데이터 반환
-        return 5;
-    }
 }

@@ -126,11 +126,30 @@ public class AdminUsersController {
             RedirectAttributes redirectAttributes) {
 
         try {
+            log.info("사용자 업데이트 요청 - ID: {}", id);
+            log.info("업데이트할 사용자 정보: {}", updatedUser);
+
+            // 중요 필드 개별 로그
+            log.info("업데이트 필드 - 사용자명: {}", updatedUser.getUsername());
+            log.info("업데이트 필드 - 이름: {}", updatedUser.getName());
+            log.info("업데이트 필드 - 닉네임: {}", updatedUser.getNickname());
+            log.info("업데이트 필드 - 이메일: {}", updatedUser.getEmail());
+            log.info("업데이트 필드 - 성별: {}", updatedUser.getGender());
+            log.info("업데이트 필드 - 생년월일: {}", updatedUser.getBirthdate());
+            log.info("업데이트 필드 - 권한: {}", updatedUser.getRole());
+
             userService.updateUser(id, updatedUser);
             redirectAttributes.addFlashAttribute("successMessage", "사용자 정보가 성공적으로 업데이트되었습니다.");
             return "redirect:/admin/users/" + id;
         } catch (Exception e) {
-            log.error("사용자 정보 업데이트 중 오류 발생: {}", e.getMessage());
+            log.error("사용자 정보 업데이트 중 오류 발생: {}", e.getMessage(), e);
+            log.error("오류 스택 트레이스:", e);
+            log.error("오류 종류: {}", e.getClass().getName());
+
+            if (e.getCause() != null) {
+                log.error("오류 원인: {}", e.getCause().getMessage());
+            }
+
             redirectAttributes.addFlashAttribute("errorMessage", "사용자 정보 업데이트 중 오류가 발생했습니다: " + e.getMessage());
             return "redirect:/admin/users/" + id + "/edit";
         }

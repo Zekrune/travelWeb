@@ -40,12 +40,17 @@
                 <div class="post-category" th:text="${review.destination}">해운대</div>
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <h1 class="post-title" th:text="${review.title}">리뷰 제목</h1>
-                    <div class="post-control-buttons" th:if="${review.isAuthor}" style="margin-left: 1rem; display: flex; gap: 0.5rem;">
-                        <a th:href="@{/reviews/edit/{id}(id=${review.id})}" class="btn btn-edit" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                    <div class="post-control-buttons" th:if="${review.isAuthor}"
+                        style="margin-left: 1rem; display: flex; gap: 0.5rem;">
+                        <a th:href="@{/reviews/edit/{id}(id=${review.id})}" class="btn btn-edit"
+                            style="padding: 0.5rem 1rem; font-size: 0.9rem;">
                             <i class="fas fa-edit"></i> 수정
                         </a>
-                        <form th:action="@{/reviews/{id}/delete(id=${review.id})}" method="post" style="display: inline;">
-                            <button type="submit" class="btn btn-delete" style="padding: 0.5rem 1rem; font-size: 0.9rem;" onclick="return confirm('정말 이 리뷰를 삭제하시겠습니까?')">
+                        <form th:action="@{/reviews/{id}/delete(id=${review.id})}" method="post"
+                            style="display: inline;">
+                            <button type="submit" class="btn btn-delete"
+                                style="padding: 0.5rem 1rem; font-size: 0.9rem;"
+                                onclick="return confirm('정말 이 리뷰를 삭제하시겠습니까?')">
                                 <i class="fas fa-trash-alt"></i> 삭제
                             </button>
                         </form>
@@ -145,13 +150,15 @@
                             </div>
                         </div>
                         <div class="comment-actions" th:if="${comment.isAuthor}">
-                            <button class="comment-action" th:onclick="'showEditForm(' + ${comment.id} + ')'" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; background-color: var(--busan-light); color: var(--busan-dark); border-radius: 20px; border: none;">
+                            <button class="comment-action" th:onclick="'showEditForm(' + ${comment.id} + ')'"
+                                style="padding: 0.4rem 0.8rem; font-size: 0.85rem; background-color: var(--busan-light); color: var(--busan-dark); border-radius: 20px; border: none;">
                                 <i class="fas fa-edit"></i> 수정
                             </button>
                             <form th:action="@{/comments/{commentId}/delete(commentId=${comment.id})}" method="post"
                                 style="display: inline;">
                                 <input type="hidden" name="reviewId" th:value="${review.id}" />
-                                <button type="submit" class="comment-action" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; background-color: #ffeeee; color: #e74c3c; border-radius: 20px; border: none;"
+                                <button type="submit" class="comment-action"
+                                    style="padding: 0.4rem 0.8rem; font-size: 0.85rem; background-color: #ffeeee; color: #e74c3c; border-radius: 20px; border: none;"
                                     onclick="return confirm('정말 이 댓글을 삭제하시겠습니까?')">
                                     <i class="fas fa-trash-alt"></i> 삭제
                                 </button>
@@ -166,15 +173,24 @@
                             <input type="hidden" name="reviewId" th:value="${review.id}" />
                             <textarea class="comment-input" name="content" th:text="${comment.content}"></textarea>
                             <div style="text-align: right; margin-top: 10px;">
-                                <button type="button" style="padding: 0.5rem 1rem; font-size: 0.9rem; background-color: var(--background-color); color: var(--text-color); border-radius: 20px; border: none; cursor: pointer;"
+                                <button type="button"
+                                    style="padding: 0.5rem 1rem; font-size: 0.9rem; background-color: var(--background-color); color: var(--text-color); border-radius: 20px; border: none; cursor: pointer;"
                                     th:onclick="'hideEditForm(' + ${comment.id} + ')'">취소</button>
-                                <button type="submit" style="padding: 0.5rem 1rem; font-size: 0.9rem; background-color: var(--busan-color); color: white; border-radius: 20px; border: none; cursor: pointer; margin-left: 0.5rem;">수정 완료</button>
+                                <button type="submit"
+                                    style="padding: 0.5rem 1rem; font-size: 0.9rem; background-color: var(--busan-color); color: white; border-radius: 20px; border: none; cursor: pointer; margin-left: 0.5rem;">수정
+                                    완료</button>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- 이미지 모달 -->
+    <div id="imageModal" class="modal">
+        <span class="close-modal" onclick="closeImageModal()">&times;</span>
+        <img class="modal-content" id="modalImage">
     </div>
 
     <script th:inline="javascript">

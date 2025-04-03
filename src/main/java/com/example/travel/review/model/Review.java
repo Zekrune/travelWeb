@@ -1,6 +1,5 @@
 package com.example.travel.review.model;
 
-import com.example.travel.attraction.model.Attraction;
 import com.example.travel.schedule.model.Schedule;
 import com.example.travel.user.model.User;
 import jakarta.persistence.*;
@@ -30,10 +29,6 @@ public class Review {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "attraction_id", nullable = false)
-    private Attraction attraction;
 
     @Column(nullable = false)
     private String title;

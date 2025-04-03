@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Transactional(readOnly = true)
@@ -61,16 +62,49 @@ public class UserService {
 		return userRepository.findByUsername(username).isEmpty();
 	}
 
+	// 현재 사용자를 제외한 아이디 중복 여부 확인
+	public boolean isUsernameAvailable(String username, Long currentUserId) {
+		log.info("isUsernameAvailable: {}, currentUserId: {}", username, currentUserId);
+
+		// 사용자명으로 사용자 찾기
+		Optional<User> existingUser = userRepository.findByUsername(username);
+
+		// 사용자가 없거나, 찾은 사용자가 현재 사용자와 같으면 사용 가능
+		return existingUser.isEmpty() || existingUser.get().getId().equals(currentUserId);
+	}
+
 	// 닉네임 중복 여부 확인
 	public boolean isNicknameAvailable(String nickname) {
 		log.info("isNicknameAvailable: {}", nickname);
 		return userRepository.findByNickname(nickname).isEmpty();
 	}
 
+	// 현재 사용자를 제외한 닉네임 중복 여부 확인
+	public boolean isNicknameAvailable(String nickname, Long currentUserId) {
+		log.info("isNicknameAvailable: {}, currentUserId: {}", nickname, currentUserId);
+
+		// 닉네임으로 사용자 찾기
+		Optional<User> existingUser = userRepository.findByNickname(nickname);
+
+		// 사용자가 없거나, 찾은 사용자가 현재 사용자와 같으면 사용 가능
+		return existingUser.isEmpty() || existingUser.get().getId().equals(currentUserId);
+	}
+
 	// 이메일 중복 여부 확인
 	public boolean isEmailAvailable(String email) {
 		log.info("isEmailAvailable: {}", email);
 		return userRepository.findByEmail(email).isEmpty();
+	}
+
+	// 현재 사용자를 제외한 이메일 중복 여부 확인
+	public boolean isEmailAvailable(String email, Long currentUserId) {
+		log.info("isEmailAvailable: {}, currentUserId: {}", email, currentUserId);
+
+		// 이메일로 사용자 찾기
+		Optional<User> existingUser = userRepository.findByEmail(email);
+
+		// 사용자가 없거나, 찾은 사용자가 현재 사용자와 같으면 사용 가능
+		return existingUser.isEmpty() || existingUser.get().getId().equals(currentUserId);
 	}
 
 	/**
@@ -146,26 +180,76 @@ public class UserService {
 	 */
 	@Transactional
 	public User updateUser(Long id, User updatedUser) {
-		User user = getUserById(id);
+		User existingUser = getUserById(id);
+		log.info("사용자 업데이트 시작 - 기존 사용자 ID: {}, 사용자명: {}", existingUser.getId(), existingUser.getUsername());
 
-		// 업데이트할 필드만 변경
-		if (updatedUser.getUsername() != null) {
-			user.setUsername(updatedUser.getUsername());
+		try {
+			// 사용자명 업데이트 (중복 검사 포함)
+			if (updatedUser.getUsername() != null) {
+				if (!updatedUser.getUsername().equals(existingUser.getUsername()) &&
+						!isUsernameAvailable(updatedUser.getUsername(), id)) {
+					throw new IllegalArgumentException("이미 사용 중인 사용자명입니다: " + updatedUser.getUsername());
+				}
+				existingUser.setUsername(updatedUser.getUsername());
+				log.debug("사용자명 업데이트됨: {}", updatedUser.getUsername());
+			}
+
+			// 이름 업데이트
+			if (updatedUser.getName() != null) {
+				existingUser.setName(updatedUser.getName());
+				log.debug("이름 업데이트됨: {}", updatedUser.getName());
+			}
+
+			// 닉네임 업데이트 (중복 검사 포함)
+			if (updatedUser.getNickname() != null) {
+				if (!updatedUser.getNickname().equals(existingUser.getNickname()) &&
+						!isNicknameAvailable(updatedUser.getNickname(), id)) {
+					throw new IllegalArgumentException("이미 사용 중인 닉네임입니다: " + updatedUser.getNickname());
+				}
+				existingUser.setNickname(updatedUser.getNickname());
+				log.debug("닉네임 업데이트됨: {}", updatedUser.getNickname());
+			}
+
+			// 이메일 업데이트 (중복 검사 포함)
+			if (updatedUser.getEmail() != null) {
+				if (!updatedUser.getEmail().equals(existingUser.getEmail()) &&
+						!isEmailAvailable(updatedUser.getEmail(), id)) {
+					throw new IllegalArgumentException("이미 사용 중인 이메일입니다: " + updatedUser.getEmail());
+				}
+				existingUser.setEmail(updatedUser.getEmail());
+				log.debug("이메일 업데이트됨: {}", updatedUser.getEmail());
+			}
+
+			// 성별 업데이트
+			if (updatedUser.getGender() != null) {
+				existingUser.setGender(updatedUser.getGender());
+				log.debug("성별 업데이트됨: {}", updatedUser.getGender());
+			}
+
+			// 생년월일 업데이트
+			if (updatedUser.getBirthdate() != null) {
+				existingUser.setBirthdate(updatedUser.getBirthdate());
+				log.debug("생년월일 업데이트됨: {}", updatedUser.getBirthdate());
+			}
+
+			// 권한 업데이트
+			if (updatedUser.getRole() != null) {
+				existingUser.setRole(updatedUser.getRole());
+				log.debug("권한 업데이트됨: {}", updatedUser.getRole());
+			}
+
+			// 업데이트 시각 설정
+			existingUser.setUpdatedAt(LocalDateTime.now());
+
+			// 저장 및 반환
+			User savedUser = userRepository.save(existingUser);
+			log.info("사용자 ID {} 업데이트 완료", id);
+			return savedUser;
+
+		} catch (Exception e) {
+			log.error("사용자 업데이트 중 오류 발생: {}", e.getMessage(), e);
+			throw e;
 		}
-
-		if (updatedUser.getEmail() != null) {
-			user.setEmail(updatedUser.getEmail());
-		}
-
-		if (updatedUser.getRole() != null) {
-			user.setRole(updatedUser.getRole());
-		}
-
-		// 비밀번호 업데이트는 별도 처리 필요 (암호화)
-
-		user.setUpdatedAt(LocalDateTime.now());
-
-		return userRepository.save(user);
 	}
 
 	/**

@@ -97,4 +97,22 @@ public class Schedule {
     public void onPrePersist() {
         this.createdAt = LocalDateTime.now();
     }
+
+    /**
+     * 일정 ID를 반환합니다.
+     * 
+     * @return 일정 ID
+     */
+    public Long getId() {
+        return id;
+    }
+
+    /**
+     * 일정 ID를 설정합니다.
+     * 
+     * @param id 설정할 일정 ID
+     */
+    public void setId(Long id) {
+        this.id = id;
+    }
 }

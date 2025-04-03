@@ -67,7 +67,8 @@ public class ReviewController {
      * 리뷰 상세 페이지
      */
     @GetMapping("/{reviewId}")
-    public String viewReview(@PathVariable(name = "reviewId") Long reviewId, Model model, Authentication authentication) {
+    public String viewReview(@PathVariable(name = "reviewId") Long reviewId, Model model,
+            Authentication authentication) {
         ReviewDTO review = reviewService.getReviewDetail(reviewId, authentication);
         model.addAttribute("review", review);
 
@@ -87,6 +88,20 @@ public class ReviewController {
 
         try {
             log.info("리뷰 저장 요청: {}", reviewDTO);
+            log.info("태그 문자열: {}", tagsString);
+
+            // 받은 파일 정보 로깅
+            if (photos != null) {
+                log.info("첨부된 이미지 수: {}", photos.size());
+                for (int i = 0; i < photos.size(); i++) {
+                    MultipartFile file = photos.get(i);
+                    log.info("이미지 {}: 이름={}, 크기={}, 콘텐츠 타입={}, 비어있음={}",
+                            i + 1, file.getOriginalFilename(), file.getSize(),
+                            file.getContentType(), file.isEmpty());
+                }
+            } else {
+                log.info("첨부된 이미지 없음 (photos는 null)");
+            }
 
             // 태그 처리
             if (tagsString != null && !tagsString.trim().isEmpty()) {
@@ -95,6 +110,7 @@ public class ReviewController {
                         .filter(tag -> !tag.isEmpty())
                         .collect(Collectors.toSet());
                 reviewDTO.setTags(tags);
+                log.info("처리된 태그: {}", tags);
             }
 
             // 이미지가 null이 아닌 경우에만 처리
@@ -103,15 +119,24 @@ public class ReviewController {
                 validPhotos = photos.stream()
                         .filter(photo -> photo != null && !photo.isEmpty())
                         .collect(Collectors.toList());
+                log.info("유효한 이미지 수: {}", validPhotos.size());
             }
 
             ReviewDTO savedReview = reviewService.saveReview(reviewDTO, validPhotos, authentication);
+            log.info("리뷰 저장 성공. ID: {}", savedReview.getId());
+
+            // 성공 메시지 설정
             redirectAttributes.addFlashAttribute("successMessage", "리뷰가 성공적으로 등록되었습니다.");
-            return "redirect:/reviews/" + savedReview.getId();
+
+            // 명시적으로 리다이렉트 URL 로깅
+            String redirectUrl = "/reviews/" + savedReview.getId();
+            log.info("리다이렉트 URL: {}", redirectUrl);
+
+            return "redirect:" + redirectUrl;
         } catch (Exception e) {
             log.error("리뷰 저장 중 오류 발생", e);
             redirectAttributes.addFlashAttribute("errorMessage", "리뷰 저장 중 오류가 발생했습니다: " + e.getMessage());
-            return "redirect:/schedule/schedule";
+            return "redirect:/schedule/schedules";
         }
     }
 
@@ -119,7 +144,8 @@ public class ReviewController {
      * 리뷰 수정 페이지
      */
     @GetMapping("/edit/{reviewId}")
-    public String editReviewForm(@PathVariable(name = "reviewId") Long reviewId, Model model, Authentication authentication) {
+    public String editReviewForm(@PathVariable(name = "reviewId") Long reviewId, Model model,
+            Authentication authentication) {
         ReviewDTO review = reviewService.getReviewDetail(reviewId, authentication);
 
         // 작성자가 아니면 상세 페이지로 리다이렉트
@@ -211,19 +237,39 @@ public class ReviewController {
     }
 
     /**
-     * 리뷰 작성 가능 여부 확인
+     * 리뷰 작성 가능 여부 확인 (AJAX 요청용)
      */
     @GetMapping("/check")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> checkCanReview(
-            @RequestParam(name = "scheduleId") Long scheduleId,
+    public Map<String, Object> checkCanReview(
+            @RequestParam("scheduleId") Long scheduleId,
             Authentication authentication) {
 
         Map<String, Object> response = new HashMap<>();
-        boolean canReview = reviewService.canReviewSchedule(scheduleId, authentication);
 
-        response.put("canReview", canReview);
-        return ResponseEntity.ok(response);
+        try {
+            // 인증 검사
+            if (authentication == null || !authentication.isAuthenticated()) {
+                response.put("canReview", false);
+                response.put("message", "로그인이 필요합니다.");
+                return response;
+            }
+
+            // 리뷰 작성 가능 여부 확인
+            boolean canReview = reviewService.canReviewSchedule(scheduleId, authentication);
+
+            response.put("canReview", canReview);
+            if (!canReview) {
+                response.put("message", "이미 이 여행 일정에 대한 리뷰를 작성하셨습니다.");
+            }
+
+            return response;
+        } catch (Exception e) {
+            log.error("리뷰 작성 가능 여부 확인 중 오류 발생", e);
+            response.put("canReview", false);
+            response.put("message", "오류가 발생했습니다: " + e.getMessage());
+            return response;
+        }
     }
 
     /**
@@ -243,28 +289,6 @@ public class ReviewController {
         model.addAttribute("reviewsPage", reviewsPage);
         model.addAttribute("destination", destination);
         model.addAttribute("keyword", keyword);
-        model.addAttribute("currentPage", page);
-
-        return "reviews/reviewsList";
-    }
-
-    /**
-     * 태그로 리뷰 검색
-     */
-    @GetMapping("/tags")
-    public String searchReviewsByTags(
-            @RequestParam(name = "tags") String tags,
-            @RequestParam(defaultValue = "") String destination,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "12") int size,
-            Model model, Authentication authentication) {
-
-        Pageable pageable = PageRequest.of(page, size);
-        Page<ReviewDTO> reviewsPage = reviewService.searchReviewsByTags(tags, destination, pageable, authentication);
-
-        model.addAttribute("reviewsPage", reviewsPage);
-        model.addAttribute("destination", destination);
-        model.addAttribute("tags", tags);
         model.addAttribute("currentPage", page);
 
         return "reviews/reviewsList";

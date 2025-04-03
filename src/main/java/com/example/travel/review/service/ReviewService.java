@@ -278,15 +278,27 @@ public class ReviewService {
         return reviews.map(review -> convertToDTO(review, user.getId()));
     }
 
-    // 일정에 대한 리뷰 작성 가능 여부 확인
+    /**
+     * 사용자가 특정 일정에 대해 리뷰를 작성할 수 있는지 확인
+     * 
+     * @param scheduleId 일정 ID
+     * @param authentication 인증 정보
+     * @return 리뷰 작성 가능 여부
+     */
     @Transactional(readOnly = true)
     public boolean canReviewSchedule(Long scheduleId, Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return false;
         }
-
-        User user = userService.getUserFromAuthentication(authentication);
-        return !reviewRepository.existsByScheduleIdAndUserId(scheduleId, user.getId());
+        
+        try {
+            User user = userService.getUserFromAuthentication(authentication);
+            // 이미 해당 일정에 대한 리뷰를 작성했는지 확인
+            return !reviewRepository.existsByScheduleIdAndUserId(scheduleId, user.getId());
+        } catch (Exception e) {
+            log.error("리뷰 작성 가능 여부 확인 중 오류 발생", e);
+            return false;
+        }
     }
 
     // 리뷰 엔티티를 DTO로 변환

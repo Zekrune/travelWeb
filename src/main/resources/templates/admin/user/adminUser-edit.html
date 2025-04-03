@@ -233,22 +233,18 @@
                     </a>
                 </div>
             </div>
-
-            <!-- 알림 메시지 표시 -->
-            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show mt-3" role="alert">
-                <span th:text="${successMessage}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
-                <span th:text="${errorMessage}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
         </div>
 
         <form th:action="@{/admin/users/{id}/update(id=${user.id})}" method="post" class="form-section">
             <div class="avatar-container mb-4">
                 <i class="fas fa-user"></i>
             </div>
+
+            <!-- 히든 필드 추가 -->
+            <input type="hidden" name="id" th:value="${user.id}">
+            <input type="hidden" name="password" th:value="${user.password}">
+            <input type="hidden" name="provider" th:value="${user.provider}">
+            <input type="hidden" name="status" th:value="${user.status}">
 
             <div class="text-center mb-4">
                 <h3 th:text="${user.username}">사용자명</h3>
@@ -331,6 +327,26 @@
     <!-- JavaScript -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // 폼 제출 전 디버깅을 위한 이벤트 리스너
+            $('form').on('submit', function(e) {
+                console.log('폼 제출됨');
+                
+                // 폼 데이터 로깅
+                var formData = {};
+                $(this).serializeArray().forEach(function(field) {
+                    formData[field.name] = field.value;
+                });
+                
+                console.log('전송될 데이터:', formData);
+                
+                // 폼 제출 계속 진행
+                return true;
+            });
+        });
+    </script>
 </body>
 
 </html>

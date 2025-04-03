@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,60 +16,93 @@ import java.util.UUID;
 @Service
 public class FileStorageService {
 
-    @Value("${app.upload.dir:uploads}")
+    @Value("${app.upload.dir}")
     private String uploadDir;
 
     /**
-     * 파일을 저장하고 접근 가능한 URL을 반환합니다.
+     * 파일을 저장하고 저장된 파일의 URL을 반환합니다.
+     * 
+     * @param file   저장할 파일
+     * @param subDir 저장할 하위 디렉토리 (예: 'reviews', 'profiles')
+     * @return 저장된 파일의 상대 경로
+     * @throws IOException 파일 저장 중 오류 발생 시
      */
     public String storeFile(MultipartFile file, String subDir) {
         try {
-            if (file.isEmpty()) {
-                throw new IllegalArgumentException("빈 파일은 저장할 수 없습니다.");
+            // 입력 파일 검증
+            if (file == null || file.isEmpty()) {
+                log.warn("빈 파일을 저장할 수 없습니다. file is null: {}", file == null);
+                throw new IOException("빈 파일을 저장할 수 없습니다.");
             }
 
-            // 원본 파일명에서 확장자 추출
-            String originalFileName = file.getOriginalFilename();
+            log.info("파일 저장 시작 - 원본 파일명: {}, 크기: {}, 컨텐츠 타입: {}",
+                    file.getOriginalFilename(), file.getSize(), file.getContentType());
+            log.info("저장 디렉토리: {}, 하위 디렉토리: {}", uploadDir, subDir);
+
+            // 저장 디렉토리 생성
+            Path uploadPath = Paths.get(uploadDir, subDir);
+            log.info("업로드 전체 경로: {}", uploadPath.toAbsolutePath());
+
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+                log.info("디렉토리 생성됨: {}", uploadPath.toAbsolutePath());
+            } else {
+                log.info("디렉토리 이미 존재함: {}", uploadPath.toAbsolutePath());
+            }
+
+            // 원본 파일명 추출
+            String originalFilename = file.getOriginalFilename();
             String fileExtension = "";
-            if (originalFileName != null && originalFileName.contains(".")) {
-                fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
+            if (originalFilename != null && originalFilename.contains(".")) {
+                fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
             }
 
             // 고유한 파일명 생성
-            String fileName = UUID.randomUUID().toString() + fileExtension;
-
-            // 저장 디렉토리 경로 생성
-            Path uploadPath = Paths.get(uploadDir, subDir);
-
-            // 디렉토리가 존재하지 않으면 생성
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
+            String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
+            Path filePath = uploadPath.resolve(uniqueFilename);
+            log.info("생성된 고유 파일명: {}, 전체 파일 경로: {}", uniqueFilename, filePath.toAbsolutePath());
 
             // 파일 저장
-            Path filePath = uploadPath.resolve(fileName);
-            try (InputStream inputStream = file.getInputStream()) {
-                Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            log.info("파일 저장 완료: {}", filePath.toAbsolutePath());
+
+            // 저장된 파일이 실제로 존재하는지 확인
+            if (Files.exists(filePath)) {
+                log.info("파일 저장 확인됨: {}, 크기: {}", filePath.toAbsolutePath(), Files.size(filePath));
+            } else {
+                log.warn("파일이 저장되지 않음: {}", filePath.toAbsolutePath());
             }
 
-            // 파일에 접근할 수 있는 URL 경로 반환
-            return subDir + "/" + fileName;
-
-        } catch (IOException ex) {
-            log.error("파일 저장 중 오류 발생: ", ex);
-            throw new RuntimeException("파일 저장 중 오류가 발생했습니다.", ex);
+            // 웹에서 접근 가능한 상대 경로 반환
+            String relativePath = "/" + subDir + "/" + uniqueFilename;
+            log.info("반환되는 파일 경로: {}", relativePath);
+            return relativePath;
+        } catch (IOException e) {
+            log.error("파일 저장 중 오류 발생: {}", e.getMessage(), e);
+            throw new RuntimeException("파일을 저장할 수 없습니다: " + e.getMessage(), e);
         }
     }
 
     /**
-     * 파일 삭제
+     * 파일을 삭제합니다.
+     * 
+     * @param fileUrl 삭제할 파일의 URL
+     * @return 삭제 여부
      */
     public boolean deleteFile(String fileUrl) {
+        if (fileUrl == null || fileUrl.isEmpty()) {
+            return false;
+        }
+
         try {
-            Path filePath = Paths.get(uploadDir, fileUrl);
-            return Files.deleteIfExists(filePath);
-        } catch (IOException ex) {
-            log.error("파일 삭제 중 오류 발생: ", ex);
+            // URL에서 파일 경로 추출
+            String filePath = fileUrl.startsWith("/") ? fileUrl.substring(1) : fileUrl;
+            Path fullPath = Paths.get(uploadDir, filePath);
+
+            // 파일 삭제
+            return Files.deleteIfExists(fullPath);
+        } catch (IOException e) {
+            log.error("파일 삭제 중 오류 발생: {}", fileUrl, e);
             return false;
         }
     }
