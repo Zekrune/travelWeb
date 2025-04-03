@@ -1,5 +1,6 @@
 package com.example.travel.schedule.service;
 
+import com.example.travel.admin.dto.ScheduleSummaryDTO;
 import com.example.travel.exception.ResourceNotFoundException;
 import com.example.travel.schedule.dto.ScheduleDTO;
 import com.example.travel.schedule.model.Schedule;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -188,5 +191,39 @@ public class ScheduleService {
         log.info("일정 ID {} 업데이트 완료", scheduleId);
 
         return ScheduleDTO.fromEntity(updatedSchedule);
+    }
+
+    /**
+     * 전체 일정 수를 조회합니다.
+     * @return 전체 일정 수
+     */
+    public long getTotalSchedulesCount() {
+        return scheduleRepository.count();
+    }
+
+    /**
+     * 최근 등록된 일정 목록을 반환합니다.
+     * @param limit 조회할 일정 수
+     * @return 최근 등록된 일정 목록
+     */
+    public List<ScheduleSummaryDTO> getRecentSchedules(int limit) {
+        List<Schedule> schedules = scheduleRepository.findTop5ByOrderByCreatedAtDesc();
+        return schedules.stream()
+                .map(schedule -> {
+                    String userName = schedule.getUser() != null ? schedule.getUser().getUsername() : "알 수 없음";
+                    
+                    LocalDate startDate = LocalDate.parse(schedule.getStartDate());
+                    LocalDate endDate = LocalDate.parse(schedule.getEndDate());
+                    int duration = Period.between(startDate, endDate).getDays() + 1;
+                    
+                    return ScheduleSummaryDTO.builder()
+                            .id(schedule.getId())
+                            .title(schedule.getPlanName())
+                            .userName(userName)
+                            .duration(duration)
+                            .createdAt(schedule.getCreatedAt())
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 }

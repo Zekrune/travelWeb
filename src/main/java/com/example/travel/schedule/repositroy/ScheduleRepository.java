@@ -13,6 +13,11 @@ import java.util.List;
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     @Query("SELECT s FROM Schedule s WHERE s.user.id = :userId")
     List<Schedule> findByUserId(@Param("userId") Long userId);
-    
+
     List<Schedule> findByUser(User user);
+
+    /**
+     * 가장 최근에 생성된 일정 5개를 조회합니다.
+     */
+    List<Schedule> findTop5ByOrderByCreatedAtDesc();
 }

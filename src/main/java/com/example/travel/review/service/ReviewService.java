@@ -10,6 +10,7 @@ import com.example.travel.review.repository.ReviewRepository;
 import com.example.travel.schedule.model.Schedule;
 import com.example.travel.user.model.User;
 import com.example.travel.user.service.UserService;
+import com.example.travel.admin.dto.ReviewSummaryDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -281,7 +282,7 @@ public class ReviewService {
     /**
      * 사용자가 특정 일정에 대해 리뷰를 작성할 수 있는지 확인
      * 
-     * @param scheduleId 일정 ID
+     * @param scheduleId     일정 ID
      * @param authentication 인증 정보
      * @return 리뷰 작성 가능 여부
      */
@@ -290,7 +291,7 @@ public class ReviewService {
         if (authentication == null || !authentication.isAuthenticated()) {
             return false;
         }
-        
+
         try {
             User user = userService.getUserFromAuthentication(authentication);
             // 이미 해당 일정에 대한 리뷰를 작성했는지 확인
@@ -469,14 +470,14 @@ public class ReviewService {
      */
     @Transactional(readOnly = true)
     public Page<Review> getAllReviews(
-            String category, Double minRating, Double maxRating, 
+            String category, Double minRating, Double maxRating,
             String searchTerm, Pageable pageable) {
-        
+
         if (category != null || minRating != null || maxRating != null || searchTerm != null) {
             // 고급 필터링을 위한 커스텀 레포지토리 메소드 호출
             return reviewRepository.findWithFilters(category, minRating, maxRating, searchTerm, pageable);
         }
-        
+
         return reviewRepository.findAll(pageable);
     }
 
@@ -532,5 +533,49 @@ public class ReviewService {
         Review review = findReviewById(id);
         review.setStatus(ReviewStatus.DELETED);
         reviewRepository.save(review);
+    }
+
+    /**
+     * 전체 리뷰 수를 조회합니다.
+     * @return 전체 리뷰 수
+     */
+    public long getTotalReviewsCount() {
+        return reviewRepository.count();
+    }
+
+    /**
+     * 최근에 작성된 리뷰 목록을 반환합니다.
+     * 
+     * @param limit 조회할 리뷰 수
+     * @return 최근 작성된 리뷰 목록
+     */
+    public List<ReviewSummaryDTO> getRecentReviews(int limit) {
+        List<Review> reviews = reviewRepository.findTop5ByOrderByCreatedAtDesc();
+        return reviews.stream()
+                .map(review -> {
+                    String userName = review.getUser() != null ? review.getUser().getUsername() : "알 수 없음";
+                    String title = review.getSchedule() != null ? review.getSchedule().getPlanName() : "알 수 없음";
+
+                    return ReviewSummaryDTO.builder()
+                            .id(review.getId())
+                            .title(title)
+                            .userName(userName)
+                            .rating(review.getRating())
+                            .createdAt(review.getCreatedAt())
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 전체 리뷰의 평균 평점을 반환합니다.
+     * 
+     * @return 평균 평점
+     */
+    public double getAverageRating() {
+        return reviewRepository.findAll().stream()
+                .mapToDouble(Review::getRating)
+                .average()
+                .orElse(0.0);
     }
 }

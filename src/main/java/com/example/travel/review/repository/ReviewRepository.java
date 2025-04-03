@@ -103,4 +103,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
                         @Param("minRating") Double minRating,
                         @Param("maxRating") Double maxRating,
                         Pageable pageable);
+
+        /**
+         * 가장 최근에 작성된 리뷰 5개를 조회합니다.
+         */
+        List<Review> findTop5ByOrderByCreatedAtDesc();
 }

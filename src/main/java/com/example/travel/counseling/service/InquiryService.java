@@ -117,4 +117,20 @@ public class InquiryService {
     public long countUnansweredInquiries() {
         return inquiryRepository.countByIsAnswered(false);
     }
+
+    /**
+     * 전체 문의 수를 조회합니다.
+     * @return 전체 문의 수
+     */
+    public long getTotalInquiriesCount() {
+        return inquiryRepository.count();
+    }
+
+    /**
+     * 미답변 문의 개수를 반환합니다.
+     * @return 미답변 문의 개수
+     */
+    public long getUnansweredInquiriesCount() {
+        return inquiryRepository.countByIsAnswered(false);
+    }
 } 

@@ -3,7 +3,11 @@ package com.example.travel.activity.model;
 public enum ActivityType {
     LOGIN("로그인"),
     LOGOUT("로그아웃"),
-    SIGN_UP("회원가입"),
+    REGISTER("회원가입"),
+    REVIEW("리뷰"),
+    COMMENT("댓글"),
+    SCHEDULE("일정"),
+    INQUIRY("문의"),
     PROFILE_UPDATE("프로필 수정"),
     PASSWORD_CHANGE("비밀번호 변경"),
 
@@ -42,13 +46,13 @@ public enum ActivityType {
     VIEW("조회"),
     OTHER("기타");
 
-    private final String description;
+    private final String displayName;
 
-    ActivityType(String description) {
-        this.description = description;
+    ActivityType(String displayName) {
+        this.displayName = displayName;
     }
 
-    public String getDescription() {
-        return description;
+    public String getDisplayName() {
+        return displayName;
     }
 }

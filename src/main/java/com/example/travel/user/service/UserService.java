@@ -358,4 +358,12 @@ public class UserService {
 		return "active".equals(status) || "inactive".equals(status) || "suspended".equals(status);
 	}
 
+	/**
+	 * 전체 사용자 수 조회
+	 */
+	@Transactional(readOnly = true)
+	public long getTotalUserCount() {
+		return userRepository.count();
+	}
+
 }

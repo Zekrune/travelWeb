@@ -4,48 +4,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ワクワク 관리자 - 사용자 활동 로그</title>
+    <title>ワクワク 관리자 - 활동 로그</title>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <!-- DatePicker -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" th:href="@{/css/admin/adminNav.css}">
     <link rel="stylesheet" th:href="@{/css/admin/adminMain.css}">
+    <link rel="stylesheet" th:href="@{/css/main/main.css}">
     <style>
-        .filter-section {
-            background-color: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
+        .activities-container {
+            padding: 20px;
         }
 
-        .filter-header {
+        .activity-filter {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .activity-list {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .activity-card {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+        }
+
+        .activity-card:last-child {
+            border-bottom: none;
+        }
+
+        .activity-card:hover {
+            background-color: #f9fafb;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .activity-icon.login,
+        .activity-icon.LOGIN {
+            background-color: #e3f2fd;
+            color: #0d6efd;
+        }
+
+        .activity-icon.logout,
+        .activity-icon.LOGOUT {
+            background-color: #ffebee;
+            color: #f44336;
+        }
+
+        .activity-icon.register,
+        .activity-icon.REGISTER {
+            background-color: #e8f5e9;
+            color: #4caf50;
+        }
+
+        .activity-icon.review,
+        .activity-icon.REVIEW {
+            background-color: #fff8e1;
+            color: #ffa000;
+        }
+
+        .activity-icon.comment,
+        .activity-icon.COMMENT {
+            background-color: #fff3e0;
+            color: #ff9800;
+        }
+
+        .activity-icon.schedule,
+        .activity-icon.SCHEDULE {
+            background-color: #e0f7fa;
+            color: #00acc1;
+        }
+
+        .activity-icon.inquiry,
+        .activity-icon.INQUIRY {
+            background-color: #f3e5f5;
+            color: #9c27b0;
+        }
+
+        .activity-icon.profile_update,
+        .activity-icon.PROFILE_UPDATE {
+            background-color: #e8eaf6;
+            color: #3f51b5;
+        }
+
+        .activity-icon.password_change,
+        .activity-icon.PASSWORD_CHANGE {
+            background-color: #fce4ec;
+            color: #e91e63;
+        }
+
+        .activity-details {
+            flex: 1;
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: #2d3748;
+        }
+
+        .activity-time {
+            font-size: 12px;
+            color: #718096;
+        }
+
+        .activity-description {
+            font-size: 13px;
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .activity-meta {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
+            font-size: 12px;
+            color: #718096;
         }
 
-        .custom-select {
-            background-color: white;
-            border: 1px solid #ddd;
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
         }
 
-        .activity-table th {
-            white-space: nowrap;
-            font-weight: 600;
-            color: #333;
+        .pagination {
+            --bs-pagination-color: #555;
+            --bs-pagination-hover-color: #333;
+            --bs-pagination-focus-color: #333;
+            --bs-pagination-active-bg: #4a6fdc;
+            --bs-pagination-active-border-color: #4a6fdc;
         }
 
         .activity-badge {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            white-space: nowrap;
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
         }
 
         .badge-login {
@@ -53,9 +172,14 @@
             color: #0d6efd;
         }
 
-        .badge-travel {
+        .badge-logout {
+            background-color: #ffebee;
+            color: #f44336;
+        }
+
+        .badge-register {
             background-color: #e8f5e9;
-            color: #2e7d32;
+            color: #4caf50;
         }
 
         .badge-review {
@@ -63,9 +187,9 @@
             color: #ffa000;
         }
 
-        .badge-counseling {
-            background-color: #f3e5f5;
-            color: #9c27b0;
+        .badge-comment {
+            background-color: #fff3e0;
+            color: #ff9800;
         }
 
         .badge-schedule {
@@ -73,63 +197,45 @@
             color: #00acc1;
         }
 
-        .badge-other {
-            background-color: #eeeeee;
-            color: #616161;
+        .badge-inquiry {
+            background-color: #f3e5f5;
+            color: #9c27b0;
         }
 
-        .user-info {
-            display: flex;
-            align-items: center;
+        .badge-profile {
+            background-color: #e8eaf6;
+            color: #3f51b5;
         }
 
-        .user-info .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            margin-right: 10px;
-            background-color: #e9ecef;
+        .badge-password {
+            background-color: #fce4ec;
+            color: #e91e63;
+        }
+
+        .empty-state {
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            color: #495057;
+            padding: 60px 20px;
+            color: #a0aec0;
         }
 
-        .activity-detail-btn {
-            color: #6c757d;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            transition: color 0.2s;
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
         }
 
-        .activity-detail-btn:hover {
-            color: #0d6efd;
-        }
-
-        .activity-detail-modal .modal-body {
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        .activity-detail-item {
-            margin-bottom: 0.5rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid #eee;
-        }
-
-        .activity-detail-label {
+        .empty-state h4 {
             font-weight: 600;
-            color: #495057;
+            color: #718096;
+            margin-bottom: 10px;
         }
 
-        .activity-detail-value {
-            color: #212529;
-        }
-
-        .search-btn {
-            height: 38px;
+        .empty-state p {
+            text-align: center;
+            max-width: 400px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -141,249 +247,188 @@
     <div class="wrapper">
         <!-- 메인 컨텐츠 영역 -->
         <div class="main-content">
-            <div class="content-header">
-                <h2 class="content-title">사용자 활동 로그</h2>
-                <p class="text-muted">모든 사용자의 활동을 확인하고 필터링할 수 있습니다.</p>
-            </div>
-
-            <!-- 필터 섹션 -->
-            <div class="filter-section">
-                <div class="filter-header">
-                    <h5 class="m-0">필터</h5>
-                    <a th:href="@{/admin/activities}" class="btn btn-sm btn-outline-secondary">
-                        <i class="fas fa-redo"></i> 필터 초기화
-                    </a>
-                </div>
-                <form th:action="@{/admin/activities}" method="get" class="row g-3">
-                    <div class="col-md-3">
-                        <label for="userId" class="form-label">사용자 ID</label>
-                        <input type="number" class="form-control" id="userId" name="userId" th:value="${currentUserId}"
-                            placeholder="사용자 ID">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="type" class="form-label">활동 유형</label>
-                        <select class="form-select custom-select" id="type" name="type">
-                            <option value="">모든 활동</option>
-                            <option th:each="type : ${activityTypes.entrySet()}" th:value="${type.key}"
-                                th:text="${type.value}" th:selected="${type.key == currentType}"></option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="startDate" class="form-label">시작일</label>
-                        <input type="date" class="form-control datepicker" id="startDate" name="startDate"
-                            th:value="${currentStartDate}" placeholder="YYYY-MM-DD">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="endDate" class="form-label">종료일</label>
-                        <input type="date" class="form-control datepicker" id="endDate" name="endDate"
-                            th:value="${currentEndDate}" placeholder="YYYY-MM-DD">
-                    </div>
-                    <div class="col-md-10">
-                        <label for="keyword" class="form-label">키워드 검색</label>
-                        <input type="text" class="form-control" id="keyword" name="keyword" th:value="${currentKeyword}"
-                            placeholder="설명 또는 상세 정보 검색">
-                    </div>
-                    <div class="col-md-2">
-                        <label class="d-block invisible">검색</label>
-                        <button type="submit" class="btn btn-primary w-100 search-btn">
-                            <i class="fas fa-search"></i> 검색
+            <div class="activities-container">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0">활동 로그</h2>
+                    <div>
+                        <button id="refreshActivities" class="btn btn-primary">
+                            <i class="fas fa-sync-alt me-2"></i>새로고침
                         </button>
                     </div>
-                </form>
-            </div>
-
-            <!-- 활동 로그 테이블 -->
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover activity-table mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>#</th>
-                                    <th>활동 유형</th>
-                                    <th>사용자</th>
-                                    <th>설명</th>
-                                    <th>IP 주소</th>
-                                    <th>일시</th>
-                                    <th>액션</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:if="${activities.empty}">
-                                    <td colspan="7" class="text-center py-4">조회된 활동이 없습니다.</td>
-                                </tr>
-                                <tr th:each="activity : ${activities.content}">
-                                    <td th:text="${activity.id}">1</td>
-                                    <td>
-                                        <span
-                                            th:class="|activity-badge ${#strings.toLowerCase(activity.activityType.name()).startsWith('login') ? 'badge-login' : 
-                                                      (#strings.toLowerCase(activity.activityType.name()).contains('travel') ? 'badge-travel' : 
-                                                      (#strings.toLowerCase(activity.activityType.name()).contains('review') ? 'badge-review' : 
-                                                      (#strings.toLowerCase(activity.activityType.name()).contains('counseling') ? 'badge-counseling' : 
-                                                      (#strings.toLowerCase(activity.activityType.name()).contains('schedule') ? 'badge-schedule' : 'badge-other'))))}|"
-                                            th:text="${activity.activityType.description}">로그인</span>
-                                    </td>
-                                    <td>
-                                        <div class="user-info">
-                                            <div class="user-avatar">
-                                                <span th:text="${#strings.substring(activity.user.name, 0, 1)}">김</span>
-                                            </div>
-                                            <span
-                                                th:text="${activity.user.name} + ' (' + ${activity.user.username} + ')'">사용자명</span>
-                                        </div>
-                                    </td>
-                                    <td th:text="${activity.description}">시스템에 로그인함</td>
-                                    <td th:text="${activity.ipAddress ?: '-'}">127.0.0.1</td>
-                                    <td th:text="${#temporals.format(activity.createdAt, 'yyyy-MM-dd HH:mm:ss')}">
-                                        2023-07-28 14:30:45</td>
-                                    <td>
-                                        <button class="activity-detail-btn" type="button" data-bs-toggle="modal"
-                                            th:data-bs-target="'#activityModal' + ${activity.id}">
-                                            <i class="fas fa-info-circle"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
-            </div>
 
-            <!-- 페이지네이션 -->
-            <div class="d-flex justify-content-center mt-4">
-                <nav th:if="${activities.totalPages > 0}">
-                    <ul class="pagination">
-                        <li class="page-item" th:classappend="${activities.first ? 'disabled' : ''}">
-                            <a class="page-link"
-                                th:href="@{/admin/activities(page=0, size=${activities.size}, sort=${param.sort}, userId=${currentUserId}, type=${currentType}, startDate=${currentStartDate}, endDate=${currentEndDate}, keyword=${currentKeyword})}"
-                                aria-label="First">
-                                <i class="fas fa-angle-double-left"></i>
-                            </a>
-                        </li>
-                        <li class="page-item" th:classappend="${activities.first ? 'disabled' : ''}">
-                            <a class="page-link"
-                                th:href="@{/admin/activities(page=${activities.number - 1}, size=${activities.size}, sort=${param.sort}, userId=${currentUserId}, type=${currentType}, startDate=${currentStartDate}, endDate=${currentEndDate}, keyword=${currentKeyword})}"
-                                aria-label="Previous">
-                                <i class="fas fa-angle-left"></i>
-                            </a>
-                        </li>
-                        <li class="page-item"
-                            th:each="i : ${#numbers.sequence(activities.number - 2 > 0 ? activities.number - 2 : 0, 
-                                                              activities.number + 2 < activities.totalPages ? activities.number + 2 : activities.totalPages - 1)}"
-                            th:classappend="${i == activities.number ? 'active' : ''}">
-                            <a class="page-link"
-                                th:href="@{/admin/activities(page=${i}, size=${activities.size}, sort=${param.sort}, userId=${currentUserId}, type=${currentType}, startDate=${currentStartDate}, endDate=${currentEndDate}, keyword=${currentKeyword})}"
-                                th:text="${i + 1}">1</a>
-                        </li>
-                        <li class="page-item" th:classappend="${activities.last ? 'disabled' : ''}">
-                            <a class="page-link"
-                                th:href="@{/admin/activities(page=${activities.number + 1}, size=${activities.size}, sort=${param.sort}, userId=${currentUserId}, type=${currentType}, startDate=${currentStartDate}, endDate=${currentEndDate}, keyword=${currentKeyword})}"
-                                aria-label="Next">
-                                <i class="fas fa-angle-right"></i>
-                            </a>
-                        </li>
-                        <li class="page-item" th:classappend="${activities.last ? 'disabled' : ''}">
-                            <a class="page-link"
-                                th:href="@{/admin/activities(page=${activities.totalPages - 1}, size=${activities.size}, sort=${param.sort}, userId=${currentUserId}, type=${currentType}, startDate=${currentStartDate}, endDate=${currentEndDate}, keyword=${currentKeyword})}"
-                                aria-label="Last">
-                                <i class="fas fa-angle-double-right"></i>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
-
-            <!-- 활동 상세 정보 모달 -->
-            <div th:each="activity : ${activities.content}" th:id="'activityModal' + ${activity.id}"
-                class="modal fade activity-detail-modal" tabindex="-1" aria-labelledby="activityModalLabel"
-                aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="activityModalLabel">활동 상세 정보</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <!-- 필터 섹션 -->
+                <div class="activity-filter mb-4">
+                    <form id="filterForm" method="get" th:action="@{/admin/activity-logs}">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label for="activityType" class="form-label">활동 유형</label>
+                                <select class="form-select" id="activityType" name="activityType">
+                                    <option value="">전체</option>
+                                    <option value="LOGIN">로그인</option>
+                                    <option value="LOGOUT">로그아웃</option>
+                                    <option value="REGISTER">회원가입</option>
+                                    <option value="REVIEW">리뷰</option>
+                                    <option value="COMMENT">댓글</option>
+                                    <option value="SCHEDULE">일정</option>
+                                    <option value="INQUIRY">문의</option>
+                                    <option value="PROFILE_UPDATE">프로필 수정</option>
+                                    <option value="PASSWORD_CHANGE">비밀번호 변경</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="userId" class="form-label">사용자 ID</label>
+                                <input type="text" class="form-control" id="userId" name="userId" placeholder="사용자 ID">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="startDate" class="form-label">시작 날짜</label>
+                                <input type="date" class="form-control" id="startDate" name="startDate">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="endDate" class="form-label">종료 날짜</label>
+                                <input type="date" class="form-control" id="endDate" name="endDate">
+                            </div>
+                            <div class="col-12 d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary me-2">필터 적용</button>
+                                <button type="reset" class="btn btn-outline-secondary">초기화</button>
+                            </div>
                         </div>
-                        <div class="modal-body">
-                            <div class="activity-detail-item">
-                                <div class="activity-detail-label">활동 ID</div>
-                                <div class="activity-detail-value" th:text="${activity.id}">1</div>
+                    </form>
+                </div>
+
+                <!-- 활동 로그 목록 -->
+                <div class="activity-list">
+                    <!-- 활동 로그가 없을 경우 -->
+                    <div th:if="${activitiesPage.empty}" class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h4>활동 로그가 없습니다</h4>
+                        <p>선택한 필터에 해당하는 활동 로그가 없습니다. 다른 필터를 선택하거나 필터를 초기화해보세요.</p>
+                        <button onclick="document.getElementById('filterForm').reset()" class="btn btn-outline-primary">
+                            필터 초기화
+                        </button>
+                    </div>
+
+                    <!-- 활동 로그 카드 -->
+                    <div th:each="activity : ${activitiesPage.content}" class="activity-card">
+                        <div th:class="'activity-icon ' + ${activity.activityType.name()}">
+                            <i th:class="${
+                                activity.activityType.name() == 'LOGIN' ? 'fas fa-sign-in-alt' : 
+                                activity.activityType.name() == 'LOGOUT' ? 'fas fa-sign-out-alt' : 
+                                activity.activityType.name() == 'REGISTER' ? 'fas fa-user-plus' :
+                                activity.activityType.name() == 'REVIEW' ? 'fas fa-comment' : 
+                                activity.activityType.name() == 'COMMENT' ? 'fas fa-comments' :
+                                activity.activityType.name() == 'SCHEDULE' ? 'fas fa-calendar-alt' :
+                                activity.activityType.name() == 'INQUIRY' ? 'fas fa-question-circle' :
+                                activity.activityType.name() == 'PROFILE_UPDATE' ? 'fas fa-user-edit' :
+                                activity.activityType.name() == 'PASSWORD_CHANGE' ? 'fas fa-key' :
+                                'fas fa-info-circle'
+                            }"></i>
+                        </div>
+                        <div class="activity-details">
+                            <div class="activity-header">
+                                <span class="user-name" th:text="${activity.userName}">사용자</span>
+                                <span class="activity-time"
+                                    th:text="${#temporals.format(activity.createdAt, 'yyyy-MM-dd HH:mm:ss')}">2023-04-10
+                                    12:34:56</span>
                             </div>
-                            <div class="activity-detail-item">
-                                <div class="activity-detail-label">활동 유형</div>
-                                <div class="activity-detail-value" th:text="${activity.activityType.description}">로그인
-                                </div>
+                            <div class="activity-description" th:text="${activity.description}">
+                                활동 설명
                             </div>
-                            <div class="activity-detail-item">
-                                <div class="activity-detail-label">사용자</div>
-                                <div class="activity-detail-value">
-                                    <div class="user-info">
-                                        <div class="user-avatar">
-                                            <span th:text="${#strings.substring(activity.user.name, 0, 1)}">김</span>
-                                        </div>
-                                        <span th:text="${activity.user.name} + ' (' + ${activity.user.username} + ')'"
-                                            style="margin-right: 10px;">사용자명</span>
-                                        <a th:href="@{/admin/users/{id}(id=${activity.user.id})}"
-                                            class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-user"></i> 프로필 보기
+                            <div class="activity-meta">
+                                <div>
+                                    <span
+                                        th:class="'activity-badge badge-' + ${#strings.toLowerCase(activity.activityType.name())}"
+                                        th:text="${activity.activityType.getDisplayName()}">로그인</span>
+                                    <span th:if="${activity.targetId != null && activity.targetType != null}">
+                                        <a th:href="@{'/admin/' + ${activity.targetType} + 's/' + ${activity.targetId}}"
+                                            class="ms-2 link-primary text-decoration-none">
+                                            <small>관련 항목 보기</small>
                                         </a>
-                                    </div>
+                                    </span>
+                                </div>
+                                <div th:if="${activity.ipAddress != null}">
+                                    <span class="text-muted">
+                                        <i class="fas fa-globe me-1"></i>
+                                        <span th:text="${activity.ipAddress}">127.0.0.1</span>
+                                    </span>
                                 </div>
                             </div>
-                            <div class="activity-detail-item">
-                                <div class="activity-detail-label">설명</div>
-                                <div class="activity-detail-value" th:text="${activity.description}">시스템에 로그인함</div>
-                            </div>
-                            <div class="activity-detail-item" th:if="${activity.details != null}">
-                                <div class="activity-detail-label">상세 정보</div>
-                                <div class="activity-detail-value" th:text="${activity.details}">상세 정보 내용</div>
-                            </div>
-                            <div class="activity-detail-item"
-                                th:if="${activity.targetId != null && activity.targetType != null}">
-                                <div class="activity-detail-label">대상</div>
-                                <div class="activity-detail-value">
-                                    <span th:text="${activity.targetType} + ' (' + ${activity.targetId} + ')'">리뷰
-                                        (123)</span>
-                                    <a th:href="@{/admin/{targetType}/{targetId}(targetType=${activity.targetType}, targetId=${activity.targetId})}"
-                                        class="btn btn-sm btn-outline-info ms-2">
-                                        <i class="fas fa-external-link-alt"></i> 보기
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="activity-detail-item">
-                                <div class="activity-detail-label">IP 주소</div>
-                                <div class="activity-detail-value" th:text="${activity.ipAddress ?: '정보 없음'}">127.0.0.1
-                                </div>
-                            </div>
-                            <div class="activity-detail-item">
-                                <div class="activity-detail-label">일시</div>
-                                <div class="activity-detail-value"
-                                    th:text="${#temporals.format(activity.createdAt, 'yyyy-MM-dd HH:mm:ss')}">
-                                    2023-07-28 14:30:45</div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
                         </div>
                     </div>
                 </div>
-            </div>
 
+                <!-- 페이지네이션 -->
+                <div th:if="${!activitiesPage.empty}" class="pagination-container">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            <!-- 이전 페이지 버튼 -->
+                            <li class="page-item" th:classappend="${!activitiesPage.hasPrevious()} ? 'disabled'">
+                                <a class="page-link"
+                                    th:href="@{/admin/activity-logs(page=${activitiesPage.number - 1})}"
+                                    aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+
+                            <!-- 페이지 번호 -->
+                            <li class="page-item" th:each="i : ${#numbers.sequence(0, activitiesPage.totalPages - 1)}"
+                                th:classappend="${i == activitiesPage.number} ? 'active'">
+                                <a class="page-link" th:href="@{/admin/activity-logs(page=${i})}"
+                                    th:text="${i + 1}">1</a>
+                            </li>
+
+                            <!-- 다음 페이지 버튼 -->
+                            <li class="page-item" th:classappend="${!activitiesPage.hasNext()} ? 'disabled'">
+                                <a class="page-link"
+                                    th:href="@{/admin/activity-logs(page=${activitiesPage.number + 1})}"
+                                    aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- JavaScript -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.3/build/global/luxon.min.js"></script>
+    <script th:src="@{/js/main/nav.js}"></script>
     <script>
+        // 새로고침 버튼 이벤트 리스너
+        document.getElementById('refreshActivities').addEventListener('click', function () {
+            this.innerHTML = '<i class="fas fa-sync-alt fa-spin me-2"></i>새로고침 중...';
+            this.disabled = true;
+
+            // 페이지 새로고침
+            window.location.reload();
+        });
+
+        // 날짜 필드 초기값 설정
         document.addEventListener('DOMContentLoaded', function () {
-            // Flatpickr 초기화 (날짜 선택기)
-            flatpickr(".datepicker", {
-                locale: "ko",
-                dateFormat: "Y-m-d",
-                allowInput: true
-            });
+            // URL 파라미터에서 필터 값을 가져와서 설정
+            const urlParams = new URLSearchParams(window.location.search);
+
+            // 활동 유형 선택
+            if (urlParams.has('activityType')) {
+                document.getElementById('activityType').value = urlParams.get('activityType');
+            }
+
+            // 사용자 ID
+            if (urlParams.has('userId')) {
+                document.getElementById('userId').value = urlParams.get('userId');
+            }
+
+            // 날짜 범위
+            if (urlParams.has('startDate')) {
+                document.getElementById('startDate').value = urlParams.get('startDate');
+            }
+
+            if (urlParams.has('endDate')) {
+                document.getElementById('endDate').value = urlParams.get('endDate');
+            }
         });
     </script>
 </body>

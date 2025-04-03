@@ -57,6 +57,27 @@ public class HomeController {
 		// 모델에 데이터 추가
 		model.addAttribute("upcomingTripsList", upcomingTrips);
 		model.addAttribute("completedTripsList", completedTrips);
+		
+		// 총 여행 수 추가
+		model.addAttribute("totalTrips", allSchedules.size());
+		
+		// 다가오는 여행 수 추가
+		model.addAttribute("upcomingTrips", upcomingTrips.size());
+		
+		// 방문 장소 수 추가 - 여행 일정 기준으로 계산 (모든 일정 합계)
+		model.addAttribute("visitedPlaces", allSchedules.size());
+		
+		// 다음 여행까지 남은 일수 계산
+		if (!upcomingTrips.isEmpty()) {
+			ScheduleDTO nextTrip = upcomingTrips.stream()
+					.min((t1, t2) -> LocalDate.parse(t1.getStartDate()).compareTo(LocalDate.parse(t2.getStartDate())))
+					.orElse(null);
+			
+			if (nextTrip != null) {
+				long daysToNext = java.time.temporal.ChronoUnit.DAYS.between(today, LocalDate.parse(nextTrip.getStartDate()));
+				model.addAttribute("daysToNextTrip", daysToNext);
+			}
+		}
 
 		return "main";
 	}
