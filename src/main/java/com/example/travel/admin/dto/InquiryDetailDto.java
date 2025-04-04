@@ -13,6 +13,8 @@ public class InquiryDetailDto {
     private String title;
     private String content;
     private String writer;
+    private String email;
+    private String contactNumber;
     private String category;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -31,6 +33,8 @@ public class InquiryDetailDto {
                 .title(counseling.getTitle())
                 .content(counseling.getContent())
                 .writer(counseling.getUser() != null ? counseling.getUser().getUsername() : "알 수 없음")
+                .email(counseling.getUser() != null ? counseling.getUser().getEmail() : null)
+                .contactNumber(null) // 임시로 null 처리, 실제 값은 Counseling 엔터티에서 가져와야 함
                 .category(counseling.getCategory().getDisplayName())
                 .createdAt(counseling.getCreatedAt())
                 .updatedAt(counseling.getUpdatedAt())

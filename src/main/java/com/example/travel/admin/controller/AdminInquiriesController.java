@@ -93,9 +93,12 @@ public class AdminInquiriesController {
         try {
             InquiryDetailDto inquiryDetail = inquiryService.getInquiryById(id);
             model.addAttribute("inquiry", inquiryDetail);
-
+            
             // 카테고리 목록 추가
             model.addAttribute("categories", CounselingCategory.values());
+            
+            // 답변 상태에 따라 답변 폼 표시 여부 설정
+            model.addAttribute("showAnswerForm", !inquiryDetail.isAnswered());
 
             return "admin/inquiry-detail";
         } catch (Exception e) {

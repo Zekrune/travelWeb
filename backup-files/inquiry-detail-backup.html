@@ -529,9 +529,9 @@
             <div class="post-header">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem;">
                     <div class="post-category" th:text="${inquiry.category}">일반 문의</div>
-                    <span class="status-badge" th:classappend="${inquiry.answer != null and !#strings.isEmpty(inquiry.answer) ? 'answered' : 'waiting'}">
-                        <i th:class="${inquiry.answer != null and !#strings.isEmpty(inquiry.answer) ? 'fas fa-check-circle' : 'fas fa-circle-notch fa-spin'}"></i>
-                        <span th:text="${inquiry.answer != null and !#strings.isEmpty(inquiry.answer) ? '답변완료' : '미답변'}">미답변</span>
+                    <span class="status-badge" th:classappend="${inquiry.answered ? 'answered' : 'waiting'}">
+                        <i th:class="${inquiry.answered ? 'fas fa-check-circle' : 'fas fa-circle-notch fa-spin'}"></i>
+                        <span th:text="${inquiry.answered ? '답변완료' : '미답변'}">미답변</span>
                     </span>
                 </div>
 
@@ -575,7 +575,7 @@
         </div>
 
         <!-- 답변 영역 -->
-        <div th:if="${inquiry.answer != null and !#strings.isEmpty(inquiry.answer)}" class="answer-card">
+        <div th:if="${inquiry.answered}" class="answer-card">
             <div class="answer-header">
                 <div class="answer-title">
                     <i class="fas fa-reply"></i>
@@ -615,8 +615,8 @@
             </div>
         </div>
 
-        <!-- 답변 폼 -->
-        <div th:if="${inquiry.answer == null or #strings.isEmpty(inquiry.answer)}" class="answer-card">
+        <!-- 답변 폼 (항상 표시) -->
+        <div class="answer-card">
             <div class="answer-header" style="background-color: #ffeeee;">
                 <div class="answer-title">
                     <i class="fas fa-reply"></i>
