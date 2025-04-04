@@ -606,6 +606,9 @@
                         <button type="button" class="btn btn-warning" id="editAnswerBtn">
                             <i class="fas fa-edit"></i> 답변 수정
                         </button>
+                        <button type="button" class="btn btn-danger" id="deleteBtn">
+                            <i class="fas fa-trash-alt"></i> 삭제
+                        </button>
                     </div>
                 </div>
             </div>
@@ -650,9 +653,14 @@
                     <div class="text-muted">
                         <small><i class="fas fa-info-circle"></i> 답변 등록 시 사용자에게 알림이 전송됩니다.</small>
                     </div>
-                    <button type="button" id="submitAnswerBtn" class="btn btn-primary btn-lg">
-                        <i class="fas fa-paper-plane"></i> 답변 등록하기
-                    </button>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" id="submitAnswerBtn" class="btn btn-primary btn-lg">
+                            <i class="fas fa-paper-plane"></i> 답변 등록하기
+                        </button>
+                        <button type="button" class="btn btn-danger" id="deleteBtnMobile">
+                            <i class="fas fa-trash-alt"></i> 삭제
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -662,9 +670,6 @@
             <a th:href="@{/admin/inquiries}" class="btn btn-secondary">
                 <i class="fas fa-list"></i> 목록으로
             </a>
-            <button type="button" class="btn btn-danger" id="deleteBtn">
-                <i class="fas fa-trash-alt"></i> 삭제
-            </button>
         </div>
     </div>
 
@@ -729,14 +734,25 @@
         // 모달 관련 요소 가져오기
         const modal = document.getElementById("myModal");
         const deleteBtn = document.getElementById("deleteBtn");
+        const deleteBtnMobile = document.getElementById("deleteBtnMobile");
         const closeBtn = document.querySelector(".close-btn");
         const cancelBtn = document.getElementById("cancelBtn");
         const deleteConfirmBtn = document.getElementById("deleteConfirmBtn");
 
-        // 삭제 버튼 클릭 시 모달 열기
-        deleteBtn.onclick = function() {
-            modal.style.display = "block";
-            console.log("모달 열기");
+        // 삭제 버튼 클릭 시 모달 열기 (기본)
+        if (deleteBtn) {
+            deleteBtn.onclick = function() {
+                modal.style.display = "block";
+                console.log("삭제 버튼 클릭 - 모달 열기");
+            }
+        }
+        
+        // 미답변 상태의 삭제 버튼 클릭 시 모달 열기
+        if (deleteBtnMobile) {
+            deleteBtnMobile.onclick = function() {
+                modal.style.display = "block";
+                console.log("미답변 삭제 버튼 클릭 - 모달 열기");
+            }
         }
 
         // X 버튼 클릭 시 모달 닫기
