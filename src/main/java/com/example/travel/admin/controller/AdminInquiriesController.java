@@ -156,7 +156,6 @@ public class AdminInquiriesController {
 
         try {
             inquiryService.deleteInquiry(id);
-            redirectAttributes.addFlashAttribute("message", "문의가 성공적으로 삭제되었습니다.");
             log.info("문의 삭제 완료: ID={}", id);
         } catch (Exception e) {
             log.error("문의 삭제 중 오류 발생: {}", e.getMessage());
